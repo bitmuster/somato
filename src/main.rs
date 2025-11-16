@@ -8,6 +8,7 @@ https://docs.rs/calamine/latest/calamine/
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use chrono::NaiveDate;
+use std::fmt;
 
 #[derive(Debug)]
 enum Location {
@@ -45,8 +46,17 @@ impl Joker {
             big: 0,
             small: 0,
         };
-        println!("{:?}", joker);
+        println!("{}", joker);
         Ok(joker)
+    }
+}
+impl fmt::Display for Joker {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{} {} {} {}",
+            self.date, self.name, self.forename, self.forename
+        )
     }
 }
 
@@ -57,13 +67,13 @@ fn read_jokers() -> Result<()> {
     if let Ok(r) = excel.worksheet_range("Eingabe") {
         for row in r.rows() {
             // println!("row={:?}, row[0]={:?}", row, row[0]);
-            println!(
-                "{} {} {} {} {} {} {} {}",
-                row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]
-            );
-            if let Data::DateTime(date) = row[0] {
-                println!("{}", NaiveDate::from(date.as_datetime().unwrap()));
-            }
+            // println!(
+            //     "{} {} {} {} {} {} {} {}",
+            //     row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]
+            // );
+            // if let Data::DateTime(date) = row[0] {
+            //     println!("{}", NaiveDate::from(date.as_datetime().unwrap()));
+            // }
             let date = &row[0];
             let name = &row[1];
             let forename = &row[1];
@@ -92,13 +102,26 @@ impl Member {
         let member = Member {
             contract_no: contract_no.as_string().unwrap(),
             member_no,
-            surname: surname.as_string().unwrap(),
+            surname: surname
+                .as_string()
+                .expect(&String::from(format!("cannot parse \"{}\"", surname))),
             forename: forename.as_string().unwrap(),
         };
-        println!("{:?}", member);
+        println!("{}", member);
         member
     }
 }
+
+impl fmt::Display for Member {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Member: {} {} {} {}",
+            self.contract_no, self.member_no, self.surname, self.forename
+        )
+    }
+}
+
 fn read_members() -> Result<()> {
     let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/08_Mitgliederliste/2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu.xlsx";
     let mut excel: Xlsx<_> = open_workbook(members_file).unwrap();
@@ -110,6 +133,11 @@ fn read_members() -> Result<()> {
             //     "{} {} {} {} {} {} {} {}",
             //     row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]
             // );
+
+            if (0..3).map(|x| row[x].is_empty()).any(|x| x == true) {
+                // println!("Continuing");
+                continue;
+            };
             let contract_no = &row[0];
             let member_no = &row[1];
             let surename = &row[2];
