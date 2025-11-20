@@ -35,7 +35,7 @@ impl Joker {
             Data::DateTime(date) => {
                 NaiveDate::from(date.as_datetime().unwrap())
             }
-            _ => return Err(anyhow!("oh")),
+            _ => return Err(anyhow!("Cannot parse date: {:?}", date)),
         };
         // println!("{:?}", forename);
         let joker = Self {
@@ -63,12 +63,13 @@ impl fmt::Display for Joker {
     }
 }
 
-fn read_jokers() -> Result<()> {
+fn read_jokers() -> Result<Vec<Joker>> {
     let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/Joker_Solawi-Heckengaeu.xlsx";
     let mut excel: Xlsx<_> = open_workbook(joker_file).unwrap();
 
+    let mut jokers = Vec::new();
     if let Ok(r) = excel.worksheet_range("Eingabe") {
-        for row in r.rows() {
+        for row in r.rows().skip(1) {
             // println!("row={:?}, row[0]={:?}", row, row[0]);
             // println!(
             //     "{} {} {} {} {} {} {} {}",
@@ -80,10 +81,11 @@ fn read_jokers() -> Result<()> {
             let date = &row[0];
             let name = &row[1];
             let forename = &row[2];
-            let _joker = Joker::new(&date, &name, &forename);
+            let joker = Joker::new(&date, &name, &forename)?;
+            jokers.push(joker);
         }
     }
-    Ok(())
+    Ok(jokers)
 }
 
 #[derive(Debug)]
@@ -135,6 +137,7 @@ fn read_members() -> Result<()> {
     let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/08_Mitgliederliste/2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
     let mut excel: Xlsx<_> = open_workbook(members_file).unwrap();
 
+    let mut members = Vec::new();
     if let Ok(r) = excel.worksheet_range("Ernteverträge") {
         for row in r.rows().skip(1).take(251) {
             // println!("row={:?}, row[0]={:?}", row, row[0]);
@@ -151,15 +154,21 @@ fn read_members() -> Result<()> {
             let member_no = &row[1];
             let surename = &row[2];
             let forename = &row[3];
-            let _member =
+            let member =
                 Member::new(contract_no, member_no, surename, forename);
+            members.push(member);
         }
     };
     Ok(())
 }
 
-fn main() {
+fn main() -> Result<()> {
     println!("Hello, world!");
-    let _ = read_jokers();
-    let _ = read_members();
+    let jokers = read_jokers()?;
+    let members = read_members();
+
+    for joker in jokers {
+        println!("{:?}", joker);
+    }
+    Ok(())
 }
