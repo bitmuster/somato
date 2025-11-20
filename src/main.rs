@@ -37,16 +37,19 @@ impl Joker {
             }
             _ => return Err(anyhow!("oh")),
         };
+        // println!("{:?}", forename);
         let joker = Self {
             date: ndate,
             name: name.as_string().unwrap(),
-            forename: forename.as_string().unwrap(),
+            forename: forename
+                .as_string()
+                .unwrap_or(format!("I errow while parsing \"{:?}\"", forename)),
             warning: 0,
             location: Location::Gerlingen,
             big: 0,
             small: 0,
         };
-        println!("{}", joker);
+        // println!("{}", joker);
         Ok(joker)
     }
 }
@@ -55,7 +58,7 @@ impl fmt::Display for Joker {
         write!(
             f,
             "{} {} {} {}",
-            self.date, self.name, self.forename, self.forename
+            self.date, self.name, self.forename, self.warning
         )
     }
 }
@@ -76,7 +79,7 @@ fn read_jokers() -> Result<()> {
             // }
             let date = &row[0];
             let name = &row[1];
-            let forename = &row[1];
+            let forename = &row[2];
             let _joker = Joker::new(&date, &name, &forename);
         }
     }
@@ -98,7 +101,13 @@ impl Member {
         surname: &Data,
         forename: &Data,
     ) -> Self {
-        let member_no = member_no.get_int().unwrap_or(8888) as u32;
+        // Its text not a number
+        // let member_no = member_no.get_int().unwrap_or(8888) as u32;
+        let member_no = member_no
+            .as_string()
+            .unwrap()
+            .parse::<u32>()
+            .expect("Cannot parse");
         let member = Member {
             contract_no: contract_no.as_string().unwrap(),
             member_no,
@@ -107,7 +116,7 @@ impl Member {
                 .expect(&String::from(format!("cannot parse \"{}\"", surname))),
             forename: forename.as_string().unwrap(),
         };
-        println!("{}", member);
+        // println!("{}", member);
         member
     }
 }
@@ -123,11 +132,11 @@ impl fmt::Display for Member {
 }
 
 fn read_members() -> Result<()> {
-    let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/08_Mitgliederliste/2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu.xlsx";
+    let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/08_Mitgliederliste/2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
     let mut excel: Xlsx<_> = open_workbook(members_file).unwrap();
 
     if let Ok(r) = excel.worksheet_range("Ernteverträge") {
-        for row in r.rows() {
+        for row in r.rows().skip(1).take(251) {
             // println!("row={:?}, row[0]={:?}", row, row[0]);
             // println!(
             //     "{} {} {} {} {} {} {} {}",
