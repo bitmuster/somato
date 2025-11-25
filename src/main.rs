@@ -218,14 +218,14 @@ fn read_members() -> Result<Vec<Member>> {
             };
             let contract_no = &row[0];
             let member_no = &row[1];
-            let surename = &row[2];
+            let surname = &row[2];
             let forename = &row[3];
             let big = &row[5];
             let small = &row[6];
             let member = Member::new(
                 contract_no,
                 member_no,
-                surename,
+                surname,
                 forename,
                 big,
                 small,
