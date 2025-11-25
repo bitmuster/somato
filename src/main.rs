@@ -90,7 +90,7 @@ impl fmt::Display for Joker {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Joker {} {} {} {} {:?} {} {}",
+            "Joker: {} {} {} {} {:?} {} {}",
             self.date,
             self.surname,
             self.forename,
@@ -141,6 +141,8 @@ struct Member {
     member_no: u32,
     surname: String,
     forename: String,
+    big: u32,
+    small: u32,
 }
 
 impl Member {
@@ -149,6 +151,8 @@ impl Member {
         member_no: &Data,
         surname: &Data,
         forename: &Data,
+        big: &Data,
+        small: &Data,
     ) -> Self {
         // Its text not a number
         // let member_no = member_no.get_int().unwrap_or(8888) as u32;
@@ -156,7 +160,7 @@ impl Member {
             .as_string()
             .unwrap()
             .parse::<u32>()
-            .expect("Cannot parse");
+            .expect("Cannot parse member no");
         let member = Member {
             contract_no: contract_no.as_string().unwrap(),
             member_no,
@@ -164,6 +168,16 @@ impl Member {
                 .as_string()
                 .expect(&String::from(format!("cannot parse \"{}\"", surname))),
             forename: forename.as_string().unwrap(),
+            big: big
+                .as_string()
+                .unwrap()
+                .parse::<u32>()
+                .expect("Cannot parse big"),
+            small: small
+                .as_string()
+                .unwrap()
+                .parse::<u32>()
+                .expect("Cannot parse small"),
         };
         // println!("{}", member);
         member
@@ -174,8 +188,13 @@ impl fmt::Display for Member {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Member: {} {} {} {}",
-            self.contract_no, self.member_no, self.surname, self.forename
+            "Member: {} {} {} {} {} {}",
+            self.contract_no,
+            self.member_no,
+            self.surname,
+            self.forename,
+            self.big,
+            self.small
         )
     }
 }
@@ -201,8 +220,16 @@ fn read_members() -> Result<Vec<Member>> {
             let member_no = &row[1];
             let surename = &row[2];
             let forename = &row[3];
-            let member =
-                Member::new(contract_no, member_no, surename, forename);
+            let big = &row[5];
+            let small = &row[6];
+            let member = Member::new(
+                contract_no,
+                member_no,
+                surename,
+                forename,
+                big,
+                small,
+            );
             members.push(member);
         }
     };
@@ -210,12 +237,32 @@ fn read_members() -> Result<Vec<Member>> {
 }
 
 fn check_member_list(members: &Vec<Member>) {
-    let mut set = collections::HashSet::new();
+    let mut surname_set = collections::HashSet::new();
     for member in members.iter() {
-        if set.insert(&member.surname) {
+        if surname_set.insert(&member.surname) {
         } else {
             println!(
                 "Duplicated surname: {} {} {}",
+                member.surname, member.contract_no, member.member_no
+            );
+        }
+    }
+    let mut member_no_set = collections::HashSet::new();
+    for member in members.iter() {
+        if member_no_set.insert(&member.member_no) {
+        } else {
+            println!(
+                "Duplicated member number: {} {} {}",
+                member.surname, member.contract_no, member.member_no
+            );
+        }
+    }
+    let mut contract_no_set = collections::HashSet::new();
+    for member in members.iter() {
+        if contract_no_set.insert(&member.contract_no) {
+        } else {
+            println!(
+                "Duplicated contract number: {} {} {}",
                 member.surname, member.contract_no, member.member_no
             );
         }
@@ -225,6 +272,7 @@ fn check_member_list(members: &Vec<Member>) {
 fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
     println!("Checking Joker List");
     let mut joker_warnings = 0;
+    let warn_limit = 10;
     'outer: for j in jokers.iter() {
         for m in members.iter() {
             if j.surname.to_lowercase() == m.surname.to_lowercase()
@@ -234,13 +282,16 @@ fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
                 continue 'outer;
             }
         }
-        println!(
-            "Cannot find Joker line {} name:  {} {}",
-            j.line, j.surname, j.forename
-        );
+        if joker_warnings < warn_limit {
+            println!(
+                "Cannot find Joker line {} name:  {} {}",
+                j.line, j.surname, j.forename
+            );
+        }
+
         joker_warnings += 1;
     }
-    println!("Joker warnings {}", joker_warnings);
+    println!("Overll Joker warnings {}", joker_warnings);
 }
 
 fn main() -> Result<()> {
@@ -248,16 +299,19 @@ fn main() -> Result<()> {
     let jokers = read_jokers()?;
     let members = read_members()?;
 
+    println!("Some Members:");
     for member in members.iter().take(5) {
         println!("{}", member);
     }
 
+    println!("Some Jokers:");
     for joker in jokers.iter().take(5) {
         println!("{}", joker);
     }
 
     println!("Found {} members", members.len());
     println!("Found {} jokers", jokers.len());
+
     check_member_list(&members);
     check_joker_list(&members, &jokers);
     Ok(())
