@@ -103,7 +103,8 @@ impl fmt::Display for Joker {
 }
 
 fn read_jokers() -> Result<Vec<Joker>> {
-    let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/Joker_Solawi-Heckengaeu.xlsx";
+    let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
+        Joker_Solawi-Heckengaeu.xlsx";
     let mut excel: Xlsx<_> = open_workbook(joker_file).unwrap();
 
     let mut jokers = Vec::new();
@@ -200,7 +201,9 @@ impl fmt::Display for Member {
 }
 
 fn read_members() -> Result<Vec<Member>> {
-    let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/08_Mitgliederliste/2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
+    let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
+        08_Mitgliederliste/\
+        2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
     let mut excel: Xlsx<_> = open_workbook(members_file).unwrap();
 
     let mut members = Vec::new();
@@ -272,7 +275,7 @@ fn check_member_list(members: &Vec<Member>) {
 fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
     println!("Checking Joker List");
     let mut joker_warnings = 0;
-    let warn_limit = 10;
+    let warn_limit = 5;
     'outer: for j in jokers.iter() {
         for m in members.iter() {
             if j.surname.to_lowercase() == m.surname.to_lowercase()
