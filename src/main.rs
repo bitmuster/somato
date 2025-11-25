@@ -57,7 +57,7 @@ impl fmt::Display for Joker {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{} {} {} {}",
+            "JOker {} {} {} {}",
             self.date, self.name, self.forename, self.warning
         )
     }
@@ -133,7 +133,7 @@ impl fmt::Display for Member {
     }
 }
 
-fn read_members() -> Result<()> {
+fn read_members() -> Result<Vec<Member>> {
     let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/08_Mitgliederliste/2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
     let mut excel: Xlsx<_> = open_workbook(members_file).unwrap();
 
@@ -159,16 +159,21 @@ fn read_members() -> Result<()> {
             members.push(member);
         }
     };
-    Ok(())
+    Ok(members)
 }
 
 fn main() -> Result<()> {
     println!("Hello, world!");
     let jokers = read_jokers()?;
-    let members = read_members();
+    let members = read_members()?;
 
-    for joker in jokers {
-        println!("{:?}", joker);
+    for joker in jokers.iter() {
+        println!("{}", joker);
     }
+    for member in members.iter() {
+        println!("{}", member);
+    }
+    println!("Found {} members", members.len());
+    println!("Found {} jokers", jokers.len());
     Ok(())
 }
