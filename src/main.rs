@@ -8,6 +8,7 @@ https://docs.rs/calamine/latest/calamine/
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use chrono::NaiveDate;
+use std::collections;
 use std::fmt;
 
 #[derive(Debug)]
@@ -21,7 +22,7 @@ enum Location {
 #[derive(Debug)]
 struct Joker {
     date: NaiveDate,
-    name: String,
+    surname: String,
     forename: String,
     warning: u32,
     location: Location,
@@ -30,7 +31,7 @@ struct Joker {
 }
 
 impl Joker {
-    fn new(date: &Data, name: &Data, forename: &Data) -> Result<Joker> {
+    fn new(date: &Data, surname: &Data, forename: &Data) -> Result<Joker> {
         let ndate = match date {
             Data::DateTime(date) => {
                 NaiveDate::from(date.as_datetime().unwrap())
@@ -40,10 +41,10 @@ impl Joker {
         // println!("{:?}", forename);
         let joker = Self {
             date: ndate,
-            name: name.as_string().unwrap(),
+            surname: surname.as_string().unwrap(),
             forename: forename
                 .as_string()
-                .unwrap_or(format!("I errow while parsing \"{:?}\"", forename)),
+                .unwrap_or(format!("Error while parsing \"{:?}\"", forename)),
             warning: 0,
             location: Location::Gerlingen,
             big: 0,
@@ -58,7 +59,7 @@ impl fmt::Display for Joker {
         write!(
             f,
             "JOker {} {} {} {}",
-            self.date, self.name, self.forename, self.warning
+            self.date, self.surname, self.forename, self.warning
         )
     }
 }
@@ -162,18 +163,45 @@ fn read_members() -> Result<Vec<Member>> {
     Ok(members)
 }
 
+fn check_member_list(members: &Vec<Member>) {
+    let mut set = collections::HashSet::new();
+    for member in members.iter() {
+        if set.insert(&member.surname) {
+        } else {
+            println!(
+                "Duplicated surname: {} {} {}",
+                member.surname, member.contract_no, member.member_no
+            );
+        }
+    }
+}
+
 fn main() -> Result<()> {
     println!("Hello, world!");
     let jokers = read_jokers()?;
     let members = read_members()?;
 
-    for joker in jokers.iter() {
-        println!("{}", joker);
-    }
     for member in members.iter() {
-        println!("{}", member);
+        // println!("{}", member);
     }
+
+    for joker in jokers.iter() {
+        // println!("{}", joker);
+    }
+    check_member_list(&members);
     println!("Found {} members", members.len());
     println!("Found {} jokers", jokers.len());
+    println!("Checking Joker List");
+    'outer: for j in jokers.iter() {
+        for m in members.iter() {
+            if j.surname.to_lowercase() == m.surname.to_lowercase()
+                && j.forename.to_lowercase() == m.forename.to_lowercase()
+            {
+                // println!("Found {}", j.surname);
+                continue 'outer;
+            }
+        }
+        println!("Cannot find {} {}", j.surname, j.forename);
+    }
     Ok(())
 }
