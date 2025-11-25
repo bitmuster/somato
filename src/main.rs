@@ -28,10 +28,16 @@ struct Joker {
     location: Location,
     big: u32,
     small: u32,
+    line: u32,
 }
 
 impl Joker {
-    fn new(date: &Data, surname: &Data, forename: &Data) -> Result<Joker> {
+    fn new(
+        date: &Data,
+        surname: &Data,
+        forename: &Data,
+        line: u32,
+    ) -> Result<Joker> {
         let ndate = match date {
             Data::DateTime(date) => {
                 NaiveDate::from(date.as_datetime().unwrap())
@@ -49,6 +55,7 @@ impl Joker {
             location: Location::Gerlingen,
             big: 0,
             small: 0,
+            line: line,
         };
         // println!("{}", joker);
         Ok(joker)
@@ -70,6 +77,7 @@ fn read_jokers() -> Result<Vec<Joker>> {
 
     let mut jokers = Vec::new();
     if let Ok(r) = excel.worksheet_range("Eingabe") {
+        let mut line = 2;
         for row in r.rows().skip(1) {
             // println!("row={:?}, row[0]={:?}", row, row[0]);
             // println!(
@@ -82,8 +90,9 @@ fn read_jokers() -> Result<Vec<Joker>> {
             let date = &row[0];
             let name = &row[1];
             let forename = &row[2];
-            let joker = Joker::new(&date, &name, &forename)?;
+            let joker = Joker::new(&date, &name, &forename, line)?;
             jokers.push(joker);
+            line += 1;
         }
     }
     Ok(jokers)
@@ -176,22 +185,9 @@ fn check_member_list(members: &Vec<Member>) {
     }
 }
 
-fn main() -> Result<()> {
-    println!("Hello, world!");
-    let jokers = read_jokers()?;
-    let members = read_members()?;
-
-    for member in members.iter() {
-        // println!("{}", member);
-    }
-
-    for joker in jokers.iter() {
-        // println!("{}", joker);
-    }
-    check_member_list(&members);
-    println!("Found {} members", members.len());
-    println!("Found {} jokers", jokers.len());
+fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
     println!("Checking Joker List");
+    let mut joker_warnings = 0;
     'outer: for j in jokers.iter() {
         for m in members.iter() {
             if j.surname.to_lowercase() == m.surname.to_lowercase()
@@ -201,7 +197,31 @@ fn main() -> Result<()> {
                 continue 'outer;
             }
         }
-        println!("Cannot find {} {}", j.surname, j.forename);
+        println!(
+            "Cannot find Joker line {} name:  {} {}",
+            j.line, j.surname, j.forename
+        );
+        joker_warnings += 1;
     }
+    println!("Joker warnings {}", joker_warnings);
+}
+
+fn main() -> Result<()> {
+    println!("Hello, world!");
+    let jokers = read_jokers()?;
+    let members = read_members()?;
+
+    // for member in members.iter() {
+    // println!("{}", member);
+    // }
+
+    // for joker in jokers.iter() {
+    // println!("{}", joker);
+    // }
+
+    println!("Found {} members", members.len());
+    println!("Found {} jokers", jokers.len());
+    check_member_list(&members);
+    check_joker_list(&members, &jokers);
     Ok(())
 }
