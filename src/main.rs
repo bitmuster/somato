@@ -17,6 +17,9 @@ enum Location {
     Gerlingen,
     Renningen,
     WeilDerStadt,
+    Leonberg,
+    Neuhausen,
+    NotParsed,
 }
 
 #[derive(Debug)]
@@ -36,6 +39,10 @@ impl Joker {
         date: &Data,
         surname: &Data,
         forename: &Data,
+        warning: &Data,
+        location: &Data,
+        big: &Data,
+        small: &Data,
         line: u32,
     ) -> Result<Joker> {
         let ndate = match date {
@@ -44,17 +51,35 @@ impl Joker {
             }
             _ => return Err(anyhow!("Cannot parse date: {:?}", date)),
         };
+        let location_str =
+            location.as_string().unwrap_or("Error NA".to_string());
+        let location = match location_str.as_str()
+            // .as_string()
+            // .expect(format!("Cannot parse location {:?}", location).as_str())
+            // .as_str()
+        {
+            "Gerlingen" => Location::Gerlingen,
+            "Perouse" => Location::Perouse,
+            "Weil der Stadt" => Location::WeilDerStadt,
+            "Renningen" => Location::Renningen,
+            "Leonberg"=> Location::Leonberg,
+            "Neuhausen"=> Location::Neuhausen,
+            "Error NA" => Location::NotParsed,
+            _ => {return Err(anyhow!("Cannot parse Location {location}"))}
+        };
         // println!("{:?}", forename);
         let joker = Self {
             date: ndate,
-            surname: surname.as_string().unwrap(),
+            surname: surname.as_string().expect("Cannot parse surname"),
             forename: forename
                 .as_string()
                 .unwrap_or(format!("Error while parsing \"{:?}\"", forename)),
-            warning: 0,
-            location: Location::Gerlingen,
-            big: 0,
-            small: 0,
+            warning: warning.as_i64().expect("Cannot parse warning") as u32,
+            location: location,
+            // big: big.as_i64().expect("Cannot parse big") as u32,
+            // small: small.as_i64().expect("Cannot parse small") as u32,
+            big: big.as_i64().unwrap_or(88) as u32,
+            small: small.as_i64().unwrap_or(88) as u32,
             line: line,
         };
         // println!("{}", joker);
@@ -65,8 +90,14 @@ impl fmt::Display for Joker {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "JOker {} {} {} {}",
-            self.date, self.surname, self.forename, self.warning
+            "Joker {} {} {} {} {:?} {} {}",
+            self.date,
+            self.surname,
+            self.forename,
+            self.warning,
+            self.location,
+            self.small,
+            self.big
         )
     }
 }
@@ -90,7 +121,13 @@ fn read_jokers() -> Result<Vec<Joker>> {
             let date = &row[0];
             let name = &row[1];
             let forename = &row[2];
-            let joker = Joker::new(&date, &name, &forename, line)?;
+            let warning = &row[3];
+            let location = &row[4];
+            let big = &row[5];
+            let small = &row[6];
+            let joker = Joker::new(
+                &date, &name, &forename, warning, &location, big, small, line,
+            )?;
             jokers.push(joker);
             line += 1;
         }
@@ -211,13 +248,13 @@ fn main() -> Result<()> {
     let jokers = read_jokers()?;
     let members = read_members()?;
 
-    // for member in members.iter() {
-    // println!("{}", member);
-    // }
+    for member in members.iter().take(5) {
+        println!("{}", member);
+    }
 
-    // for joker in jokers.iter() {
-    // println!("{}", joker);
-    // }
+    for joker in jokers.iter().take(5) {
+        println!("{}", joker);
+    }
 
     println!("Found {} members", members.len());
     println!("Found {} jokers", jokers.len());
