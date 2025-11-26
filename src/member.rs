@@ -1,5 +1,5 @@
 use crate::location::Location;
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use std::collections;
 use std::fmt;
@@ -24,7 +24,9 @@ impl Member {
         forename: &Data,
         big: &Data,
         small: &Data,
-    ) -> Self {
+        location: &Data,
+        active: &Data,
+    ) -> Result<Self> {
         // Its text not a number
         // let member_no = member_no.get_int().unwrap_or(8888) as u32;
         let member_no = member_no
@@ -32,6 +34,17 @@ impl Member {
             .unwrap()
             .parse::<u32>()
             .expect("Cannot parse member no");
+        let location_str = location.as_string().unwrap();
+        let active_bool = match active.as_string().unwrap().as_str() {
+            "aktiv" => true,
+            "inaktiv" => false,
+            _ => {
+                return Err(anyhow!(format!(
+                    "Error while parsing activity {}",
+                    active
+                )));
+            }
+        };
         let member = Member {
             contract_no: contract_no.as_string().unwrap(),
             member_no,
@@ -49,11 +62,11 @@ impl Member {
                 .unwrap()
                 .parse::<u32>()
                 .expect("Cannot parse small"),
-            location: Location::Gerlingen,
-            active: true,
+            location: Location::parse(&location_str).unwrap(),
+            active: active_bool,
         };
         // println!("{}", member);
-        member
+        Ok(member)
     }
 }
 
@@ -97,6 +110,8 @@ pub fn read_members() -> Result<Vec<Member>> {
             let forename = &row[3];
             let big = &row[5];
             let small = &row[6];
+            let location = &row[15];
+            let active = &row[19];
             let member = Member::new(
                 contract_no,
                 member_no,
@@ -104,7 +119,9 @@ pub fn read_members() -> Result<Vec<Member>> {
                 forename,
                 big,
                 small,
-            );
+                location,
+                active,
+            )?;
             members.push(member);
         }
     };
