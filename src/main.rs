@@ -7,7 +7,6 @@ https://docs.rs/calamine/latest/calamine/
 */
 use anyhow::Result;
 
-use crate::member::print_members;
 mod joker;
 mod location;
 mod member;
