@@ -30,10 +30,18 @@ fn main() -> Result<()> {
 
     member::check_member_list(&members);
     joker::check_joker_list(&members, &jokers);
-    let active_members = member::get_active_members(members.clone());
+    let active_members = member::filter_active_members(members.clone());
+    let _gerlingen = member::filter_members_by_location(
+        &active_members,
+        location::Location::Gerlingen,
+    );
     let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 8, 8).unwrap();
     let weekly_jokers = joker::filter_jokers(jokers.clone(), date);
-    let _filtered_members =
+    let filtered_members =
         member::filter_jokers(&active_members, &weekly_jokers);
+    let _gerlingen = member::filter_members_by_location(
+        &filtered_members,
+        location::Location::Gerlingen,
+    );
     Ok(())
 }

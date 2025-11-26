@@ -164,7 +164,7 @@ pub fn check_member_list(members: &Vec<Member>) {
     }
 }
 
-pub fn get_active_members(members: MemberList) -> MemberList {
+pub fn filter_active_members(members: MemberList) -> MemberList {
     let result: MemberList = members.into_iter().filter(|m| m.active).collect();
     println!("Found {} active members", result.len());
     result
@@ -181,6 +181,10 @@ pub fn filter_jokers(
             if j.surname.to_lowercase() == m.surname.to_lowercase()
                 && j.forename.to_lowercase() == m.forename.to_lowercase()
             {
+                println!(
+                    "    Joker set: {} {} from {:?}",
+                    j.surname, j.forename, m.location
+                );
                 continue 'outer;
             }
         }
@@ -188,5 +192,19 @@ pub fn filter_jokers(
     }
 
     println!("Found {} active members with no jokers", result.len());
+    result
+}
+
+pub fn filter_members_by_location(
+    members: &MemberList,
+    location: Location,
+) -> MemberList {
+    let result: MemberList = members
+        .clone()
+        .into_iter()
+        .filter(|m| m.location == location)
+        .collect();
+    println!("Found {} members in {:?}", result.len(), location);
+    // println!("{:?}", result);
     result
 }
