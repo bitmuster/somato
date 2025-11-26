@@ -35,20 +35,7 @@ impl Joker {
         };
         let location_str =
             location.as_string().unwrap_or("Error NA".to_string());
-        let location = match location_str.as_str()
-            // .as_string()
-            // .expect(format!("Cannot parse location {:?}", location).as_str())
-            // .as_str()
-        {
-            "Gerlingen" => Location::Gerlingen,
-            "Perouse" => Location::Perouse,
-            "Weil der Stadt" => Location::WeilDerStadt,
-            "Renningen" => Location::Renningen,
-            "Leonberg"=> Location::Leonberg,
-            "Neuhausen"=> Location::Neuhausen,
-            "Error NA" => Location::NotParsed,
-            _ => {return Err(anyhow!("Cannot parse Location {location}"))}
-        };
+        let location = Location::parse(&location_str)?;
         // println!("{:?}", forename);
         let joker = Self {
             date: ndate,

@@ -1,3 +1,4 @@
+use crate::location::Location;
 use calamine::{Data, DataType};
 use std::fmt;
 
@@ -9,6 +10,8 @@ pub struct Member {
     pub forename: String,
     pub big: u32,
     pub small: u32,
+    pub location: Location,
+    pub active: bool,
 }
 
 impl Member {
@@ -44,6 +47,8 @@ impl Member {
                 .unwrap()
                 .parse::<u32>()
                 .expect("Cannot parse small"),
+            location: Location::Gerlingen,
+            active: true,
         };
         // println!("{}", member);
         member
