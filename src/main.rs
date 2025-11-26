@@ -39,9 +39,13 @@ fn main() -> Result<()> {
     let weekly_jokers = joker::filter_jokers(jokers.clone(), date);
     let filtered_members =
         member::filter_jokers(&active_members, &weekly_jokers);
-    let _gerlingen = member::filter_members_by_location(
+    let gerlingen = member::filter_members_by_location(
         &filtered_members,
         location::Location::Gerlingen,
     );
+    let _ = member::filter_members_by_big(&members);
+    let _ = member::filter_members_by_small(&members);
+    let _ = member::filter_members_by_big(&gerlingen);
+    let _ = member::filter_members_by_small(&gerlingen);
     Ok(())
 }

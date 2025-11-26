@@ -208,3 +208,22 @@ pub fn filter_members_by_location(
     // println!("{:?}", result);
     result
 }
+
+pub fn filter_members_by_small(members: &MemberList) -> MemberList {
+    let result: MemberList = members
+        .clone()
+        .into_iter()
+        .filter(|m| m.small == 1)
+        .collect();
+    println!("Found {} members with size small", result.len());
+    // println!("{:?}", result);
+    result
+}
+
+pub fn filter_members_by_big(members: &MemberList) -> MemberList {
+    let result: MemberList =
+        members.clone().into_iter().filter(|m| m.big >= 1).collect();
+    println!("Found {} members with big small", result.len());
+    // println!("{:?}", result);
+    result
+}
