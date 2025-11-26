@@ -227,3 +227,9 @@ pub fn filter_members_by_big(members: &MemberList) -> MemberList {
     // println!("{:?}", result);
     result
 }
+
+pub fn print_members(members: &MemberList) {
+    for m in members {
+        println!("m: {} {} {} {}", m.surname, m.forename, m.big, m.small);
+    }
+}

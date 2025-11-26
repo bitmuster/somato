@@ -6,6 +6,8 @@ https://docs.rs/calamine/latest/calamine/
 
 */
 use anyhow::Result;
+
+use crate::member::print_members;
 mod joker;
 mod location;
 mod member;
@@ -45,7 +47,9 @@ fn main() -> Result<()> {
     );
     let _ = member::filter_members_by_big(&members);
     let _ = member::filter_members_by_small(&members);
-    let _ = member::filter_members_by_big(&gerlingen);
-    let _ = member::filter_members_by_small(&gerlingen);
+    let mb = member::filter_members_by_big(&gerlingen);
+    let ms = member::filter_members_by_small(&gerlingen);
+    member::print_members(&mb);
+    member::print_members(&ms);
     Ok(())
 }
