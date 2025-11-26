@@ -1,10 +1,11 @@
+use crate::joker;
 use crate::location::Location;
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use std::collections;
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Member {
     pub contract_no: String,
     pub member_no: u32,
@@ -15,6 +16,8 @@ pub struct Member {
     pub location: Location,
     pub active: bool,
 }
+
+type MemberList = Vec<Member>;
 
 impl Member {
     pub fn new(
@@ -159,4 +162,31 @@ pub fn check_member_list(members: &Vec<Member>) {
             );
         }
     }
+}
+
+pub fn get_active_members(members: MemberList) -> MemberList {
+    let result: MemberList = members.into_iter().filter(|m| m.active).collect();
+    println!("Found {} active members", result.len());
+    result
+}
+
+pub fn filter_jokers(
+    members: &MemberList,
+    jokers: &joker::JokerList,
+) -> MemberList {
+    let mut result: MemberList = Vec::new();
+
+    'outer: for m in members.iter() {
+        for j in jokers {
+            if j.surname.to_lowercase() == m.surname.to_lowercase()
+                && j.forename.to_lowercase() == m.forename.to_lowercase()
+            {
+                continue 'outer;
+            }
+        }
+        result.push(m.clone());
+    }
+
+    println!("Found {} active members with no jokers", result.len());
+    result
 }

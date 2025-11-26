@@ -5,7 +5,7 @@ use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use chrono::NaiveDate;
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Joker {
     pub date: NaiveDate,
     pub surname: String,
@@ -16,6 +16,8 @@ pub struct Joker {
     pub small: u32,
     pub line: u32,
 }
+
+pub type JokerList = Vec<Joker>;
 
 impl Joker {
     pub fn new(
@@ -130,4 +132,11 @@ pub fn read_jokers() -> Result<Vec<Joker>> {
         }
     }
     Ok(jokers)
+}
+
+pub fn filter_jokers(jokers: JokerList, date: chrono::NaiveDate) -> JokerList {
+    let result: JokerList =
+        jokers.into_iter().filter(|j| j.date == date).collect();
+    println!("Filtered {} jokers at {}", result.len(), date);
+    result
 }

@@ -1,6 +1,6 @@
 use anyhow::{Result, anyhow};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Location {
     Perouse,
     Gerlingen,
