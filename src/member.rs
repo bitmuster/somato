@@ -36,7 +36,7 @@ impl Member {
             .as_string()
             .unwrap()
             .parse::<u32>()
-            .expect("Cannot parse member no");
+            .expect(&format!("Cannot parse member no {:?}", member_no));
         let location_str = location.as_string().unwrap();
         let active_bool = match active.as_string().unwrap().as_str() {
             "aktiv" => true,
