@@ -88,10 +88,7 @@ impl fmt::Display for Member {
     }
 }
 
-pub fn read_members() -> Result<Vec<Member>> {
-    let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-        08_Mitgliederliste/\
-        2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
+pub fn read_members(members_file: &str) -> Result<Vec<Member>> {
     let mut excel: Xlsx<_> = open_workbook(members_file).unwrap();
 
     let mut members = Vec::new();

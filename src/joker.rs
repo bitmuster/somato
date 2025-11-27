@@ -100,9 +100,7 @@ pub fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
     println!("Overall Joker warnings {}", joker_warnings);
 }
 
-pub fn read_jokers() -> Result<Vec<Joker>> {
-    let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-        Joker_Solawi-Heckengaeu.xlsx";
+pub fn read_jokers(joker_file: &str) -> Result<Vec<Joker>> {
     let mut excel: Xlsx<_> = open_workbook(joker_file).unwrap();
 
     let mut jokers = Vec::new();
