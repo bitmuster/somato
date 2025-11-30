@@ -16,12 +16,29 @@ pub struct TickOffItem {
 }
 
 impl TickOffItem {
-    pub fn new(name: &Data, big: Option<&Data>, small: Option<&Data>) {
-        println!("Creating new entry with {:?} {:?} {:?}", name, big, small);
+    pub fn new(name: &Data, big: Option<&Data>, small: Option<&Data>) -> Self {
+        // println!("Creating new entry with {:?} {:?} {:?}", name, big, small);
+        let name = name
+            .as_string()
+            .unwrap_or(format!("Error while parsing \"{:?}\"", name));
+        let big = match big {
+            Some(i) => i.as_i64().unwrap_or(88) as u32,
+            None => 0,
+        };
+        let small = match small {
+            Some(i) => i.as_i64().unwrap_or(88) as u32,
+            None => 0,
+        };
+        let item = TickOffItem { name, big, small };
+        println!(
+            "Creating new entry with {:?} {:?} {:?}",
+            item.name, item.big, item.small
+        );
+        item
     }
 }
 
-pub type TickOffList = Vec<TickOffItem>;
+// pub type TickOffList = Vec<TickOffItem>;
 
 pub fn tick_off_list(tickoff_file: &str) -> Result<()> {
     let mut excel: Xlsx<_> = open_workbook(tickoff_file).unwrap();
@@ -30,7 +47,7 @@ pub fn tick_off_list(tickoff_file: &str) -> Result<()> {
     if let Ok(r) = excel.worksheet_range("GER") {
         // let mut line = 2;
         for row in r.rows().skip(7).take(13) {
-            println!("Big: {} {} Small: {} {}", row[0], row[1], row[5], row[6],);
+            // println!("Big: {} {} Small: {} {}", row[0], row[1], row[5], row[6],);
             // if let Data::DateTime(date) = row[0] {
             //     println!("{}", NaiveDate::from(date.as_datetime().unwrap()));
             // }
