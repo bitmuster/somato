@@ -10,6 +10,7 @@ use anyhow::Result;
 mod joker;
 mod location;
 mod member;
+mod somajotr;
 
 fn main() -> Result<()> {
     somajotr::somajotr()?;

@@ -1,19 +1,17 @@
 use anyhow::Result;
 
-mod joker;
-mod location;
-mod member;
-
-use location::Location;
+use crate::joker;
+use crate::location::Location;
+use crate::member;
 
 pub fn somajotr() -> Result<()> {
     println!("Hello, world!");
-    // let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-    //     08_Mitgliederliste/\
-    //     2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
     let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-        Entenhausen/\
-        members_entenhausen.xlsx";
+        08_Mitgliederliste/\
+        2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
+    // let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
+    //     Entenhausen/\
+    //     members_entenhausen.xlsx";
     // let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
     //     Joker_Solawi-Heckengaeu.xlsx";
     let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
@@ -40,7 +38,7 @@ pub fn somajotr() -> Result<()> {
     let active_members = member::filter_active_members(members.clone());
     let _gerlingen = member::filter_members_by_location(
         &active_members,
-        location::Location::Gerlingen,
+        Location::Gerlingen,
     );
     let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 11, 21).unwrap();
     let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
@@ -61,7 +59,7 @@ pub fn somajotr() -> Result<()> {
     println!("Analysis for Gerlingen:");
     let gerlingen = member::filter_members_by_location(
         &filtered_members,
-        location::Location::Gerlingen,
+        Location::Gerlingen,
     );
     let mb = member::filter_members_by_big(&gerlingen);
     let ms = member::filter_members_by_small(&gerlingen);
