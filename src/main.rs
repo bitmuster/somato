@@ -11,6 +11,7 @@ mod joker;
 mod location;
 mod member;
 mod somajotr;
+mod tickoff;
 
 fn main() -> Result<()> {
     somajotr::somajotr()?;

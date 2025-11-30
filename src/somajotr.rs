@@ -3,6 +3,7 @@ use anyhow::Result;
 use crate::joker;
 use crate::location::Location;
 use crate::member;
+use crate::tickoff;
 
 pub fn somajotr() -> Result<()> {
     println!("Hello, world!");
@@ -17,6 +18,10 @@ pub fn somajotr() -> Result<()> {
     let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
         Daten_Stand_2025.11.27/\
         Joker_Solawi-Heckengaeu.xlsx";
+    let tickoff_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
+        Daten_Stand_2025.11.27/\
+        2024-10-28_Abhaklisten.xlsx";
+
     let jokers = joker::read_jokers(&joker_file)?;
     let members = member::read_members(&members_file)?;
 
@@ -65,5 +70,6 @@ pub fn somajotr() -> Result<()> {
     let ms = member::filter_members_by_small(&gerlingen);
     member::print_members(&mb);
     member::print_members(&ms);
+    tickoff::tick_off_list(tickoff_file)?;
     Ok(())
 }
