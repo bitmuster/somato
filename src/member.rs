@@ -2,6 +2,7 @@ use crate::joker;
 use crate::location::Location;
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
+use colorama::Colored;
 use std::collections;
 use std::fmt;
 
@@ -180,7 +181,9 @@ pub fn filter_jokers(
             {
                 println!(
                     "    Joker set: {} {} from {:?}",
-                    j.surname, j.forename, m.location
+                    j.surname.to_string().color("blue"),
+                    j.forename,
+                    m.location
                 );
                 continue 'outer;
             }

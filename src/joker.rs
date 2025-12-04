@@ -3,6 +3,7 @@ use crate::member::Member;
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use chrono::NaiveDate;
+use colorama::Colored;
 use std::fmt;
 
 #[derive(Debug, Clone)]
@@ -65,7 +66,7 @@ impl fmt::Display for Joker {
             f,
             "Joker: {} {} {} {} {:?} {} {}",
             self.date,
-            self.surname,
+            self.surname.to_string().color("blue"),
             self.forename,
             self.warning,
             self.location,

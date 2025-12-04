@@ -117,6 +117,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "colorama"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d165615226b6fc0f056b4cba43b3cda82125d54cd8c6fa80228b5406b140536c"
+
+[[package]]
 name = "core-foundation-sys"
 version = "0.8.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -370,6 +376,7 @@ dependencies = [
  "anyhow",
  "calamine",
  "chrono",
+ "colorama",
 ]
 
 [[package]]

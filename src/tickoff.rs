@@ -3,6 +3,8 @@ use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 // use chrono::NaiveDate;
 use crate::member;
+use colorama::Colored;
+
 #[derive(Debug, Clone)]
 pub struct TickOffItem {
     // pub date: NaiveDate,
@@ -64,7 +66,11 @@ pub fn check_lists(
                 continue 'outer;
             }
         }
-        println!("Cannot find member {} in tickoff list", member);
+        println!(
+            "{}",
+            format!("Cannot find member {} in tickoff list", member)
+                .color("red")
+        );
     }
     Ok(())
 }
