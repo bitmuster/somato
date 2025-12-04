@@ -2,7 +2,7 @@
 use anyhow::Result;
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 // use chrono::NaiveDate;
-
+use crate::member;
 #[derive(Debug, Clone)]
 pub struct TickOffItem {
     // pub date: NaiveDate,
@@ -38,11 +38,33 @@ impl TickOffItem {
     }
 }
 
-// pub type TickOffList = Vec<TickOffItem>;
+pub fn check_lists(
+    members: &member::MemberList,
+    tickoff: &TickOffList,
+) -> Result<()> {
+    println!("Got {} members to check", members.len());
+    println!("Got {} tickoff to check", tickoff.len());
+    'outer: for member in members.iter() {
+        // println!("Checking member {member}");
 
-pub fn tick_off_list(tickoff_file: &str) -> Result<()> {
+        for tick in tickoff.iter() {
+            let name = tick.name.split(",").next().unwrap();
+            // println!("Name {}", name);
+            if member.surname == name {
+                println!("Found {}", member.surname);
+                continue 'outer;
+            }
+        }
+        println!("Cannot find {}", member);
+    }
+    Ok(())
+}
+
+pub type TickOffList = Vec<TickOffItem>;
+
+pub fn tick_off_list(tickoff_file: &str) -> Result<TickOffList> {
     let mut excel: Xlsx<_> = open_workbook(tickoff_file).unwrap();
-
+    let mut tick_off_list = vec![];
     // let mut jokers = Vec::new();
     if let Ok(r) = excel.worksheet_range("GER") {
         // let mut line = 2;
@@ -55,8 +77,12 @@ pub fn tick_off_list(tickoff_file: &str) -> Result<()> {
             let amount_big = &row[1];
             let name_small = &row[5];
             let amount_small = &row[6];
-            let _item = TickOffItem::new(name_big, Some(amount_big), None);
-            let _item = TickOffItem::new(name_small, None, Some(amount_small));
+            let item_big = TickOffItem::new(name_big, Some(amount_big), None);
+            let item_small =
+                TickOffItem::new(name_small, None, Some(amount_small));
+            tick_off_list.push(item_big);
+            tick_off_list.push(item_small);
+
             // let joker = Joker::new(
             //     &date, &name, &forename, warning, &location, big, small, line,
             // )?;
@@ -64,5 +90,5 @@ pub fn tick_off_list(tickoff_file: &str) -> Result<()> {
             // line += 1;
         }
     }
-    Ok(())
+    Ok(tick_off_list)
 }

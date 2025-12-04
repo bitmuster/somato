@@ -70,6 +70,7 @@ pub fn somajotr() -> Result<()> {
     let ms = member::filter_members_by_small(&gerlingen);
     member::print_members(&mb);
     member::print_members(&ms);
-    tickoff::tick_off_list(tickoff_file)?;
+    let tick_off = tickoff::tick_off_list(tickoff_file)?;
+    let _ = tickoff::check_lists(&gerlingen, &tick_off);
     Ok(())
 }

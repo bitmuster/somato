@@ -17,7 +17,7 @@ pub struct Member {
     pub active: bool,
 }
 
-type MemberList = Vec<Member>;
+pub type MemberList = Vec<Member>;
 
 impl Member {
     pub fn new(
@@ -227,6 +227,6 @@ pub fn filter_members_by_big(members: &MemberList) -> MemberList {
 
 pub fn print_members(members: &MemberList) {
     for m in members {
-        println!("m: {} {} {} {}", m.surname, m.forename, m.big, m.small);
+        println!("Member: {} {} {} {}", m.surname, m.forename, m.big, m.small);
     }
 }
