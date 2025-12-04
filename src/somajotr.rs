@@ -71,9 +71,9 @@ pub fn somajotr() -> Result<()> {
     );
     let mb = member::filter_members_by_big(&gerlingen);
     let ms = member::filter_members_by_small(&gerlingen);
-    member::print_members(&mb);
-    member::print_members(&ms);
-    let tick_off = tickoff::tick_off_list(tickoff_file)?;
+    // member::print_members(&mb);
+    // member::print_members(&ms);
+    let tick_off = tickoff::tick_off_list(tickoff_file, "GER")?;
     let _ = tickoff::check_lists(&gerlingen, &tick_off);
 
     // Perouse
@@ -84,9 +84,9 @@ pub fn somajotr() -> Result<()> {
     );
     let mb = member::filter_members_by_big(&perouse);
     let ms = member::filter_members_by_small(&perouse);
-    member::print_members(&mb);
-    member::print_members(&ms);
-    let tick_off = tickoff::tick_off_list(tickoff_file)?;
+    // member::print_members(&mb);
+    // member::print_members(&ms);
+    let tick_off = tickoff::tick_off_list(tickoff_file, "PER")?;
     let _ = tickoff::check_lists(&perouse, &tick_off);
 
     Ok(())

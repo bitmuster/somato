@@ -39,10 +39,10 @@ impl TickOffItem {
             big,
             small,
         };
-        println!(
-            "Creating new entry with {:?} {:?} {:?}",
-            item.name, item.big, item.small
-        );
+        // println!(
+        //     "Creating new entry with {:?} {:?} {:?}",
+        //     item.name, item.big, item.small
+        // );
         Ok(item)
     }
 }
@@ -71,11 +71,14 @@ pub fn check_lists(
 
 pub type TickOffList = Vec<TickOffItem>;
 
-pub fn tick_off_list(tickoff_file: &str) -> Result<TickOffList> {
+pub fn tick_off_list(
+    tickoff_file: &str,
+    location: &str,
+) -> Result<TickOffList> {
     let mut excel: Xlsx<_> = open_workbook(tickoff_file).unwrap();
     let mut tick_off_list = vec![];
     // let mut jokers = Vec::new();
-    if let Ok(r) = excel.worksheet_range("PER") {
+    if let Ok(r) = excel.worksheet_range(location) {
         for row in r.rows().skip(7).take(100) {
             // println!("Big: {} {} Small: {} {}", row[0], row[1], row[5], row[6],);
             // if let Data::DateTime(date) = row[0] {
