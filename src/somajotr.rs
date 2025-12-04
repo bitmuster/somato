@@ -52,6 +52,7 @@ pub fn somajotr() -> Result<()> {
         weekly_jokers.clone(),
         Location::Gerlingen,
     );
+
     println!(
         "Weekly jokers {} at {} in Gerlingen",
         weekly_jokers_gerlingen.len(),
@@ -61,6 +62,8 @@ pub fn somajotr() -> Result<()> {
         member::filter_jokers(&active_members, &weekly_jokers);
     let _ = member::filter_members_by_big(&members);
     let _ = member::filter_members_by_small(&members);
+
+    // Gerlingen
     println!("Analysis for Gerlingen:");
     let gerlingen = member::filter_members_by_location(
         &filtered_members,
@@ -72,5 +75,19 @@ pub fn somajotr() -> Result<()> {
     member::print_members(&ms);
     let tick_off = tickoff::tick_off_list(tickoff_file)?;
     let _ = tickoff::check_lists(&gerlingen, &tick_off);
+
+    // Perouse
+    println!("Analysis for Perouse:");
+    let perouse = member::filter_members_by_location(
+        &filtered_members,
+        Location::Perouse,
+    );
+    let mb = member::filter_members_by_big(&perouse);
+    let ms = member::filter_members_by_small(&perouse);
+    member::print_members(&mb);
+    member::print_members(&ms);
+    let tick_off = tickoff::tick_off_list(tickoff_file)?;
+    let _ = tickoff::check_lists(&perouse, &tick_off);
+
     Ok(())
 }
