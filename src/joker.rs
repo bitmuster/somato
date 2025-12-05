@@ -66,7 +66,7 @@ impl fmt::Display for Joker {
             f,
             "Joker: {} {} {} {} {:?} {} {}",
             self.date,
-            self.surname.to_string().color("blue"),
+            self.surname,
             self.forename,
             self.warning,
             self.location,
