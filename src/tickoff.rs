@@ -68,7 +68,7 @@ pub fn check_lists(
         }
         println!(
             "{}",
-            format!("Cannot find member {} in tickoff list", member)
+            format!("Cannot find member \"{}\" in tickoff list", member)
                 .color("red")
         );
     }
