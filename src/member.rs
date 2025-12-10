@@ -306,6 +306,34 @@ mod member_tests {
         assert!(m.is_err(), "Failed to parse activity");
     }
     #[test]
+    fn new_big_amount_fail() {
+        let m = Member::new(
+            &Data::String("EV".to_string()),
+            &Data::Int(88),
+            &Data::String("John".to_string()),
+            &Data::String("Smith".to_string()),
+            &Data::String("Fail".to_string()),
+            &Data::Int(89),
+            &Data::String("Perouse".to_string()),
+            &Data::String("defect".to_string()),
+        );
+        assert!(m.is_err(), "Failed to parse contract number {:?}", m);
+    }
+    #[test]
+    fn new_small_amount_fail() {
+        let m = Member::new(
+            &Data::String("EV".to_string()),
+            &Data::String("Fail".to_string()),
+            &Data::String("John".to_string()),
+            &Data::String("Smith".to_string()),
+            &Data::Int(88),
+            &Data::String("Fail".to_string()),
+            &Data::String("Perouse".to_string()),
+            &Data::String("defect".to_string()),
+        );
+        assert!(m.is_err(), "Failed to parse contract number {:?}", m);
+    }
+    #[test]
     fn new_member_number() {
         let m = Member::new(
             &Data::String("EV".to_string()),
@@ -317,6 +345,6 @@ mod member_tests {
             &Data::String("Perouse".to_string()),
             &Data::String("defect".to_string()),
         );
-        assert!(m.is_ok(), "Failed to parse contract number {:?}", m);
+        assert!(m.is_err(), "Failed to parse contract number {:?}", m);
     }
 }
