@@ -33,11 +33,13 @@ impl Member {
     ) -> Result<Self> {
         // Its text not a number
         // let member_no = member_no.get_int().unwrap_or(8888) as u32;
-        let member_no = member_no
-            .as_string()
-            .unwrap()
-            .parse::<u32>()
-            .expect(&format!("Cannot parse member no {:?}", member_no));
+        let member_no =
+            member_no.as_string().unwrap().parse::<u32>().map_err(|e| {
+                anyhow!(format!(
+                    "Cannot parse member no {:?} reason: {}",
+                    member_no, e
+                ))
+            })?;
         let location_str = location.as_string().unwrap();
         let active_bool = match active.as_string().unwrap().as_str() {
             "aktiv" => true,
@@ -301,6 +303,20 @@ mod member_tests {
             &Data::String("Perouse".to_string()),
             &Data::String("defect".to_string()),
         );
-        assert!(m.is_err());
+        assert!(m.is_err(), "Failed to parse activity");
+    }
+    #[test]
+    fn new_member_number() {
+        let m = Member::new(
+            &Data::String("EV".to_string()),
+            &Data::String("Fail".to_string()),
+            &Data::String("John".to_string()),
+            &Data::String("Smith".to_string()),
+            &Data::Int(88),
+            &Data::Int(89),
+            &Data::String("Perouse".to_string()),
+            &Data::String("defect".to_string()),
+        );
+        assert!(m.is_ok(), "Failed to parse contract number {:?}", m);
     }
 }
