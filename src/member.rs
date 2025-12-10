@@ -233,3 +233,74 @@ pub fn print_members(members: &MemberList) {
         println!("Member: {} {} {} {}", m.surname, m.forename, m.big, m.small);
     }
 }
+
+#[cfg(test)]
+mod member_tests {
+
+    use super::Member;
+    use calamine::Data;
+
+    #[test]
+    fn new_member() {
+        let contract_no = Data::String("EV".to_string());
+        let member_no = Data::Int(87);
+        let surname = Data::String("John".to_string());
+        let forename = Data::String("Smith".to_string());
+        let big = Data::Int(88);
+        let small = Data::Int(89);
+        let location = Data::String("Perouse".to_string());
+        let active = Data::String("aktiv".to_string());
+        let _ = Member::new(
+            &contract_no,
+            &member_no,
+            &surname,
+            &forename,
+            &big,
+            &small,
+            &location,
+            &active,
+        );
+    }
+    #[test]
+    fn new_member_aktiv() {
+        let _m: Member = Member::new(
+            &Data::String("EV".to_string()),
+            &Data::Int(87),
+            &Data::String("John".to_string()),
+            &Data::String("Smith".to_string()),
+            &Data::Int(88),
+            &Data::Int(89),
+            &Data::String("Perouse".to_string()),
+            &Data::String("aktiv".to_string()),
+        )
+        .unwrap();
+    }
+    #[test]
+    fn new_member_inaktiv() {
+        let _m: Member = Member::new(
+            &Data::String("EV".to_string()),
+            &Data::Int(87),
+            &Data::String("John".to_string()),
+            &Data::String("Smith".to_string()),
+            &Data::Int(88),
+            &Data::Int(89),
+            &Data::String("Perouse".to_string()),
+            &Data::String("inaktiv".to_string()),
+        )
+        .unwrap();
+    }
+    #[test]
+    fn new_member_active_error() {
+        let m = Member::new(
+            &Data::String("EV".to_string()),
+            &Data::Int(87),
+            &Data::String("John".to_string()),
+            &Data::String("Smith".to_string()),
+            &Data::Int(88),
+            &Data::Int(89),
+            &Data::String("Perouse".to_string()),
+            &Data::String("defect".to_string()),
+        );
+        assert!(m.is_err());
+    }
+}
