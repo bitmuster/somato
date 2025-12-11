@@ -132,12 +132,13 @@ pub fn read_members(members_file: &str) -> Result<Vec<Member>> {
 }
 
 pub fn check_member_list(members: &Vec<Member>) {
+    println!("Checking member list");
     let mut surname_set = collections::HashSet::new();
     for member in members.iter() {
         if surname_set.insert(&member.surname) {
         } else {
             println!(
-                "Duplicated surname: {} {} {}",
+                "  Duplicated surname: {} {} {}",
                 member.surname, member.contract_no, member.member_no
             );
         }
@@ -147,7 +148,7 @@ pub fn check_member_list(members: &Vec<Member>) {
         if member_no_set.insert(&member.member_no) {
         } else {
             println!(
-                "Duplicated member number: {} {} {}",
+                "  Duplicated member number: {} {} {}",
                 member.surname, member.contract_no, member.member_no
             );
         }
@@ -157,8 +158,12 @@ pub fn check_member_list(members: &Vec<Member>) {
         if contract_no_set.insert(&member.contract_no) {
         } else {
             println!(
-                "Duplicated contract number: {} {} {}",
-                member.surname, member.contract_no, member.member_no
+                "{}",
+                format!(
+                    "  Duplicated contract number: {} {} {}",
+                    member.surname, member.contract_no, member.member_no
+                )
+                .color("red")
             );
         }
     }
