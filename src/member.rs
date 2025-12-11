@@ -182,7 +182,7 @@ pub fn filter_jokers(
                 && j.forename.to_lowercase() == m.forename.to_lowercase()
             {
                 println!(
-                    "    Joker set: {} {} from {:?}",
+                    "  Joker set: {} {} from {:?}",
                     j.surname.to_string().color("blue"),
                     j.forename,
                     m.location
@@ -193,7 +193,7 @@ pub fn filter_jokers(
         result.push(m.clone());
     }
 
-    println!("Found {} active members with no jokers", result.len());
+    println!("  Found {} active members with no jokers", result.len());
     result
 }
 
@@ -217,7 +217,7 @@ pub fn filter_members_by_small(members: &MemberList) -> MemberList {
         .into_iter()
         .filter(|m| m.small >= 1)
         .collect();
-    println!("  Found {} members with size small", result.len());
+    // println!("  Found {} members with size small", result.len());
     // println!("{:?}", result);
     result
 }
@@ -225,7 +225,7 @@ pub fn filter_members_by_small(members: &MemberList) -> MemberList {
 pub fn filter_members_by_big(members: &MemberList) -> MemberList {
     let result: MemberList =
         members.clone().into_iter().filter(|m| m.big >= 1).collect();
-    println!("  Found {} members with size big", result.len());
+    // println!("  Found {} members with size big", result.len());
     // println!("{:?}", result);
     result
 }

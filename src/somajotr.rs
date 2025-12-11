@@ -27,48 +27,54 @@ pub fn somajotr() -> Result<()> {
     let jokers = joker::read_jokers(&joker_file)?;
     let members = member::read_members(&members_file)?;
 
-    println!("Some Members:");
+    println!("Some exemplary members:");
     for member in members.iter().take(5) {
-        println!("{}", member);
+        println!("    {}", member);
     }
 
-    println!("Some Jokers:");
+    println!("Some exemplary jokers:");
     for joker in jokers.iter().take(5) {
-        println!("{}", joker);
+        println!("    {}", joker);
     }
 
-    println!("Found {} members", members.len());
-    println!("Found {} jokers", jokers.len());
+    println!("  Parsed {} members", members.len());
+    println!("  Parsed {} jokers", jokers.len());
 
     member::check_member_list(&members);
     joker::check_joker_list(&members, &jokers);
+
     let active_members = member::filter_active_members(members.clone());
-    let _gerlingen = member::filter_members_by_location(
-        &active_members,
-        Location::Gerlingen,
-    );
+
     let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 11, 21).unwrap();
     let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
     println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
-    let weekly_jokers_gerlingen = joker::filter_jokers_by_location(
-        weekly_jokers.clone(),
-        Location::Gerlingen,
-    );
 
-    println!(
-        "Weekly jokers {} at {} in Gerlingen",
-        weekly_jokers_gerlingen.len(),
-        date
-    );
-    let filtered_members =
+    for location in Location::iter() {
+        let weekly_jokers_loc =
+            joker::filter_jokers_by_location(weekly_jokers.clone(), &location);
+
+        println!(
+            "    Weekly jokers {} at {} in {:?}",
+            weekly_jokers_loc.len(),
+            date,
+            &location
+        );
+    }
+
+    let active_collectors =
         member::filter_jokers(&active_members, &weekly_jokers);
-    let _ = member::filter_members_by_big(&members);
-    let _ = member::filter_members_by_small(&members);
-
+    let jokers_big = member::filter_members_by_big(&active_collectors);
+    let jokers_small = member::filter_members_by_small(&active_collectors);
+    println!(
+        "Active collectors: all {}, big: {}, small: {}",
+        active_members.len(),
+        jokers_big.len(),
+        jokers_small.len()
+    );
     for location in Location::iter() {
         println!("Analysis for: {location:?}");
         let location =
-            member::filter_members_by_location(&filtered_members, location);
+            member::filter_members_by_location(&active_members, location);
         let mb = member::filter_members_by_big(&location);
         let ms = member::filter_members_by_small(&location);
         let all = location.len();

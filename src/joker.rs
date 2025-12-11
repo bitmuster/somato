@@ -139,18 +139,18 @@ pub fn filter_jokers_by_date(
 ) -> JokerList {
     let result: JokerList =
         jokers.into_iter().filter(|j| j.date == date).collect();
-    println!("Filtered {} jokers at {}", result.len(), date);
+    println!("  Filtered {} jokers at {}", result.len(), date);
     result
 }
 
 pub fn filter_jokers_by_location(
     jokers: JokerList,
-    location: Location,
+    location: &Location,
 ) -> JokerList {
     let result: JokerList = jokers
         .into_iter()
-        .filter(|j| j.location == location)
+        .filter(|j| j.location == *location)
         .collect();
-    println!("Filtered {} jokers at {:?}", result.len(), location);
+    println!("  Filtered {} jokers at {:?}", result.len(), location);
     result
 }
