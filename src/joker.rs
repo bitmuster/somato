@@ -3,7 +3,7 @@ use crate::member::Member;
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use chrono::NaiveDate;
-use colorama::Colored;
+use colored::Colorize;
 use std::fmt;
 
 #[derive(Debug, Clone)]
@@ -41,12 +41,16 @@ impl Joker {
             location.as_string().unwrap_or("Error NA".to_string());
         let location = Location::parse(&location_str)?;
         // println!("{:?}", forename);
+
+        // This can be Error(NA) when the contract is inactive
+        let forename = forename
+            .as_string()
+            .unwrap_or(format!("Error while parsing \"{:?}\"", forename));
+
         let joker = Self {
             date: ndate,
             surname: surname.as_string().expect("Cannot parse surname"),
-            forename: forename
-                .as_string()
-                .unwrap_or(format!("Error while parsing \"{:?}\"", forename)),
+            forename: forename,
             warning: warning.as_i64().expect("Cannot parse warning") as u32,
             location: location,
             // big: big.as_i64().expect("Cannot parse big") as u32,
@@ -91,14 +95,21 @@ pub fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
         }
         if joker_warnings < warn_limit {
             println!(
-                "Cannot find Joker line {} name:  {} {}",
-                j.line, j.surname, j.forename
+                "{}",
+                format!(
+                    "  Cannot find Joker line {} name: \"{}\" forename: \"{}\"",
+                    j.line, j.surname, j.forename
+                )
+                .red()
             );
         }
 
         joker_warnings += 1;
     }
-    println!("Overall Joker warnings {}", joker_warnings);
+    println!(
+        "{}",
+        format!("  Overall Joker warnings {}", joker_warnings).red()
+    );
 }
 
 pub fn read_jokers(joker_file: &str) -> Result<Vec<Joker>> {
