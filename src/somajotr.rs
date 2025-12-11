@@ -4,6 +4,8 @@ use crate::joker;
 use crate::location::Location;
 use crate::member;
 use crate::tickoff;
+use colorama::Colored;
+use strum::IntoEnumIterator;
 
 pub fn somajotr() -> Result<()> {
     println!("Hello, world!");
@@ -63,31 +65,32 @@ pub fn somajotr() -> Result<()> {
     let _ = member::filter_members_by_big(&members);
     let _ = member::filter_members_by_small(&members);
 
-    // Gerlingen
-    println!("Analysis for Gerlingen:");
-    let gerlingen = member::filter_members_by_location(
-        &filtered_members,
-        Location::Gerlingen,
-    );
-    let mb = member::filter_members_by_big(&gerlingen);
-    let ms = member::filter_members_by_small(&gerlingen);
-    // member::print_members(&mb);
-    // member::print_members(&ms);
-    let tick_off = tickoff::tick_off_list(tickoff_file, "GER")?;
-    let _ = tickoff::check_lists(&gerlingen, &tick_off);
+    for location in Location::iter() {
+        println!("Analysis for: {location:?}");
+        let location =
+            member::filter_members_by_location(&filtered_members, location);
+        let mb = member::filter_members_by_big(&location);
+        let ms = member::filter_members_by_small(&location);
+        let all = location.len();
+        let big = mb.len();
+        let small = ms.len();
+        println!("  Found {all}, big {big}, small {small}");
+        let diff: i32 = all as i32 - big as i32 - small as i32;
 
-    // Perouse
-    println!("Analysis for Perouse:");
-    let perouse = member::filter_members_by_location(
-        &filtered_members,
-        Location::Perouse,
-    );
-    let mb = member::filter_members_by_big(&perouse);
-    let ms = member::filter_members_by_small(&perouse);
-    // member::print_members(&mb);
-    // member::print_members(&ms);
-    let tick_off = tickoff::tick_off_list(tickoff_file, "PER")?;
-    let _ = tickoff::check_lists(&perouse, &tick_off);
+        if diff != 0 {
+            println!(
+                "  {}",
+                format!("Difference in amount {}", diff)
+                    .to_string()
+                    .color("red")
+            );
+        }
+        // member::print_members(&mb);
+        // member::print_members(&ms);
+
+        // let tick_off = tickoff::tick_off_list(tickoff_file, "GER")?;
+        // let _ = tickoff::check_lists(&gerlingen, &tick_off);
+    }
 
     Ok(())
 }

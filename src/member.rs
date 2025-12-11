@@ -206,7 +206,7 @@ pub fn filter_members_by_location(
         .into_iter()
         .filter(|m| m.location == location)
         .collect();
-    println!("Found {} members in {:?}", result.len(), location);
+    println!("  Found {} members in {:?}", result.len(), location);
     // println!("{:?}", result);
     result
 }
@@ -215,9 +215,9 @@ pub fn filter_members_by_small(members: &MemberList) -> MemberList {
     let result: MemberList = members
         .clone()
         .into_iter()
-        .filter(|m| m.small == 1)
+        .filter(|m| m.small >= 1)
         .collect();
-    println!("Found {} members with size small", result.len());
+    println!("  Found {} members with size small", result.len());
     // println!("{:?}", result);
     result
 }
@@ -225,11 +225,12 @@ pub fn filter_members_by_small(members: &MemberList) -> MemberList {
 pub fn filter_members_by_big(members: &MemberList) -> MemberList {
     let result: MemberList =
         members.clone().into_iter().filter(|m| m.big >= 1).collect();
-    println!("Found {} members with size big", result.len());
+    println!("  Found {} members with size big", result.len());
     // println!("{:?}", result);
     result
 }
 
+#[allow(dead_code)]
 pub fn print_members(members: &MemberList) {
     for m in members {
         println!("Member: {} {} {} {}", m.surname, m.forename, m.big, m.small);

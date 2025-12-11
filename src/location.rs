@@ -1,6 +1,8 @@
 use anyhow::{Result, anyhow};
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(EnumIter, Debug, Clone, PartialEq)]
 pub enum Location {
     Perouse,
     Gerlingen,
