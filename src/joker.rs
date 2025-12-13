@@ -31,11 +31,18 @@ impl Joker {
         small: &Data,
         line: u32,
     ) -> Result<Joker> {
+        println!("{date:?}");
         let ndate = match date {
             Data::DateTime(date) => {
                 NaiveDate::from(date.as_datetime().unwrap())
             }
-            _ => return Err(anyhow!("Cannot parse date: {:?}", date)),
+            _ => {
+                return Err(anyhow!(
+                    "Cannot parse date \"{}\" on line {}",
+                    date.to_string(),
+                    line
+                ));
+            }
         };
         let location_str =
             location.as_string().unwrap_or("Error NA".to_string());
@@ -170,4 +177,54 @@ pub fn filter_jokers_by_location(
         .collect();
     println!("  Filtered {} jokers at {:?}", result.len(), location);
     result
+}
+
+#[cfg(test)]
+mod joker_tests {
+
+    use super::*;
+
+    #[test]
+    fn test_new_wrong_date() {
+        let j = Joker::new(
+            &Data::String("wrongDate".to_string()),
+            &Data::String("Smith".to_string()),
+            &Data::String("John".to_string()),
+            &Data::Int(88),
+            &Data::String(" Perouse ".to_string()),
+            &Data::Int(80),
+            &Data::Int(81),
+            88,
+        );
+        assert!(j.is_err());
+        // println!("{:?}", j);
+        if let Err(e) = j {
+            assert_eq!(
+                e.to_string(),
+                "Cannot parse date \"wrongDate\" on line 88"
+            );
+        }
+    }
+    #[test]
+    fn test_new() {
+        let j = Joker::new(
+            &Data::DateTime(calamine::ExcelDateTime::new(
+                45658.0,
+                calamine::ExcelDateTimeType::DateTime,
+                false,
+            )),
+            &Data::String("Smith".to_string()),
+            &Data::String("John".to_string()),
+            &Data::Int(88),
+            &Data::String("Perouse".to_string()),
+            &Data::Int(80),
+            &Data::Int(81),
+            88,
+        );
+        println!("{:?}", j);
+        assert!(j.is_ok());
+        println!("{:?}", j);
+        let j = j.unwrap();
+        assert_eq!(j.date, NaiveDate::from_ymd_opt(2025, 1, 1).unwrap());
+    }
 }
