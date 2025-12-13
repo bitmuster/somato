@@ -31,7 +31,7 @@ impl Joker {
         small: &Data,
         line: u32,
     ) -> Result<Joker> {
-        println!("{date:?}");
+        // println!("{date:?}");
         let ndate = match date {
             Data::DateTime(date) => {
                 NaiveDate::from(date.as_datetime().unwrap())
@@ -46,17 +46,25 @@ impl Joker {
         };
         let location_str =
             location.as_string().unwrap_or("Error NA".to_string());
+        let location_str = location_str.trim();
         let location = Location::parse(&location_str)?;
-        // println!("{:?}", forename);
 
         // This can be Error(NA) when the contract is inactive
         let forename = forename
             .as_string()
-            .unwrap_or(format!("Error while parsing \"{:?}\"", forename));
+            .unwrap_or(format!("Error while parsing \"{:?}\"", forename))
+            .trim()
+            .to_string();
+
+        let surname = surname
+            .as_string()
+            .unwrap_or(format!("Error while parsing \"{:?}\"", surname))
+            .trim()
+            .to_string();
 
         let joker = Self {
             date: ndate,
-            surname: surname.as_string().expect("Cannot parse surname"),
+            surname: surname,
             forename: forename,
             warning: warning.as_i64().expect("Cannot parse warning") as u32,
             location: location,
@@ -226,5 +234,41 @@ mod joker_tests {
         println!("{:?}", j);
         let j = j.unwrap();
         assert_eq!(j.date, NaiveDate::from_ymd_opt(2025, 1, 1).unwrap());
+        assert_eq!(j.surname, "Smith");
+        assert_eq!(j.forename, "John");
+        assert_eq!(j.warning, 88);
+        assert_eq!(j.location, Location::Perouse);
+        assert_eq!(j.big, 80);
+        assert_eq!(j.small, 81);
+        assert_eq!(j.line, 88);
+    }
+    #[test]
+    fn test_new_whitespaces() {
+        let j = Joker::new(
+            &Data::DateTime(calamine::ExcelDateTime::new(
+                45658.0,
+                calamine::ExcelDateTimeType::DateTime,
+                false,
+            )),
+            &Data::String(" Smith ".to_string()),
+            &Data::String("  John ".to_string()),
+            &Data::Int(88),
+            &Data::String("  Perouse ".to_string()),
+            &Data::Int(80),
+            &Data::Int(81),
+            88,
+        );
+        println!("{:?}", j);
+        assert!(j.is_ok());
+        println!("{:?}", j);
+        let j = j.unwrap();
+        assert_eq!(j.date, NaiveDate::from_ymd_opt(2025, 1, 1).unwrap());
+        assert_eq!(j.surname, "Smith");
+        assert_eq!(j.forename, "John");
+        assert_eq!(j.warning, 88);
+        assert_eq!(j.location, Location::Perouse);
+        assert_eq!(j.big, 80);
+        assert_eq!(j.small, 81);
+        assert_eq!(j.line, 88);
     }
 }

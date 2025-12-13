@@ -46,6 +46,7 @@ pub fn somajotr() -> Result<()> {
     let active_members = member::filter_active_members(members.clone());
 
     let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 11, 21).unwrap();
+    let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 8, 15).unwrap();
     let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
     println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
 
