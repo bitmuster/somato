@@ -40,7 +40,7 @@ impl Member {
                     member_no, e
                 ))
             })?;
-        let location_str = location.as_string().unwrap();
+        let location_str = location.as_string().unwrap().trim().to_string();
         let active_bool = match active.as_string().unwrap().as_str() {
             "aktiv" => true,
             "inaktiv" => false,
@@ -59,13 +59,21 @@ impl Member {
             .as_string()
             .ok_or(anyhow!("Cannot parse value for big amount"))?
             .parse::<u32>()?;
+        let surname = surname
+            .as_string()
+            .ok_or(anyhow!("Cannot parse surname {surname}"))?
+            .trim()
+            .to_string();
+        let forename = forename
+            .as_string()
+            .ok_or(anyhow!("Cannot parse forename {forename}"))?
+            .trim()
+            .to_string();
         let member = Member {
             contract_no: contract_no.as_string().unwrap(),
             member_no,
-            surname: surname
-                .as_string()
-                .expect(&String::from(format!("cannot parse \"{}\"", surname))),
-            forename: forename.as_string().unwrap(),
+            surname: surname,
+            forename: forename,
             big: big,
             small: small,
             location: Location::parse(&location_str).unwrap(),
@@ -245,15 +253,15 @@ pub fn print_members(members: &MemberList) {
 #[cfg(test)]
 mod member_tests {
 
-    use super::Member;
+    use super::*;
     use calamine::Data;
 
     #[test]
     fn new_member() {
         let contract_no = Data::String("EV".to_string());
         let member_no = Data::Int(87);
-        let surname = Data::String("John".to_string());
-        let forename = Data::String("Smith".to_string());
+        let surname = Data::String("Smith".to_string());
+        let forename = Data::String("John".to_string());
         let big = Data::Int(88);
         let small = Data::Int(89);
         let location = Data::String("Perouse".to_string());
@@ -274,8 +282,8 @@ mod member_tests {
         let _m: Member = Member::new(
             &Data::String("EV".to_string()),
             &Data::Int(87),
-            &Data::String("John".to_string()),
             &Data::String("Smith".to_string()),
+            &Data::String("John".to_string()),
             &Data::Int(88),
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
@@ -288,8 +296,8 @@ mod member_tests {
         let _m: Member = Member::new(
             &Data::String("EV".to_string()),
             &Data::Int(87),
-            &Data::String("John".to_string()),
             &Data::String("Smith".to_string()),
+            &Data::String("John".to_string()),
             &Data::Int(88),
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
@@ -302,8 +310,8 @@ mod member_tests {
         let m = Member::new(
             &Data::String("EV".to_string()),
             &Data::Int(87),
-            &Data::String("John".to_string()),
             &Data::String("Smith".to_string()),
+            &Data::String("John".to_string()),
             &Data::Int(88),
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
@@ -316,8 +324,8 @@ mod member_tests {
         let m = Member::new(
             &Data::String("EV".to_string()),
             &Data::Int(88),
-            &Data::String("John".to_string()),
             &Data::String("Smith".to_string()),
+            &Data::String("John".to_string()),
             &Data::String("Fail".to_string()),
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
@@ -330,8 +338,8 @@ mod member_tests {
         let m = Member::new(
             &Data::String("EV".to_string()),
             &Data::Int(66),
-            &Data::String("John".to_string()),
             &Data::String("Smith".to_string()),
+            &Data::String("John".to_string()),
             &Data::Int(88),
             &Data::String("Fail".to_string()),
             &Data::String("Perouse".to_string()),
@@ -344,8 +352,8 @@ mod member_tests {
         let m = Member::new(
             &Data::String("EV".to_string()),
             &Data::String("Fail".to_string()),
-            &Data::String("John".to_string()),
             &Data::String("Smith".to_string()),
+            &Data::String("John".to_string()),
             &Data::Int(88),
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
@@ -358,13 +366,17 @@ mod member_tests {
         let m = Member::new(
             &Data::String("EV".to_string()),
             &Data::Int(66),
-            &Data::String("John".to_string()),
-            &Data::String("Smith".to_string()),
+            &Data::String("  Smith ".to_string()),
+            &Data::String(" John  ".to_string()),
             &Data::Int(88),
             &Data::Int(89),
-            &Data::String("Perouse".to_string()),
+            &Data::String(" Perouse ".to_string()),
             &Data::String("inaktiv".to_string()),
         );
         assert!(m.is_ok());
+        let m = m.unwrap();
+        assert_eq!(m.surname, "Smith");
+        assert_eq!(m.forename, "John");
+        assert_eq!(m.location, Location::Perouse);
     }
 }
