@@ -83,7 +83,7 @@ impl fmt::Display for Joker {
 pub fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
     println!("Checking Joker List");
     let mut joker_warnings = 0;
-    let warn_limit = 5;
+    let warn_limit = 500;
     'outer: for j in jokers.iter() {
         for m in members.iter() {
             if j.surname.to_lowercase() == m.surname.to_lowercase()
@@ -92,12 +92,18 @@ pub fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
                 // println!("Found {}", j.surname);
                 continue 'outer;
             }
+            if j.surname.to_lowercase() == m.surname.to_lowercase() {
+                if m.active == false {
+                    // println!("  Ignoring inactive entry {}", j.surname);
+                    continue 'outer;
+                }
+            }
         }
         if joker_warnings < warn_limit {
             println!(
                 "{}",
                 format!(
-                    "  Cannot find Joker line {} name: \"{}\" forename: \"{}\"",
+                    "  Cannot find Joker line {} in member list name: \"{}\" forename: \"{}\"",
                     j.line, j.surname, j.forename
                 )
                 .red()

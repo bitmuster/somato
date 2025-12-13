@@ -51,6 +51,14 @@ impl Member {
                 )));
             }
         };
+        let big = big
+            .as_string()
+            .ok_or(anyhow!("Cannot parse value for big amount"))?
+            .parse::<u32>()?;
+        let small = small
+            .as_string()
+            .ok_or(anyhow!("Cannot parse value for big amount"))?
+            .parse::<u32>()?;
         let member = Member {
             contract_no: contract_no.as_string().unwrap(),
             member_no,
@@ -58,20 +66,12 @@ impl Member {
                 .as_string()
                 .expect(&String::from(format!("cannot parse \"{}\"", surname))),
             forename: forename.as_string().unwrap(),
-            big: big
-                .as_string()
-                .unwrap()
-                .parse::<u32>()
-                .expect("Cannot parse big"),
-            small: small
-                .as_string()
-                .unwrap()
-                .parse::<u32>()
-                .expect("Cannot parse small"),
+            big: big,
+            small: small,
             location: Location::parse(&location_str).unwrap(),
             active: active_bool,
         };
-        // println!("{}", member);
+        println!("{}", member);
         Ok(member)
     }
 }
@@ -321,7 +321,7 @@ mod member_tests {
             &Data::String("Fail".to_string()),
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
-            &Data::String("defect".to_string()),
+            &Data::String("inaktiv".to_string()),
         );
         assert!(m.is_err(), "Failed to parse contract number {:?}", m);
     }
@@ -329,13 +329,13 @@ mod member_tests {
     fn new_small_amount_fail() {
         let m = Member::new(
             &Data::String("EV".to_string()),
-            &Data::String("Fail".to_string()),
+            &Data::Int(66),
             &Data::String("John".to_string()),
             &Data::String("Smith".to_string()),
             &Data::Int(88),
             &Data::String("Fail".to_string()),
             &Data::String("Perouse".to_string()),
-            &Data::String("defect".to_string()),
+            &Data::String("inaktiv".to_string()),
         );
         assert!(m.is_err(), "Failed to parse contract number {:?}", m);
     }
@@ -349,8 +349,22 @@ mod member_tests {
             &Data::Int(88),
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
-            &Data::String("defect".to_string()),
+            &Data::String("inaktiv".to_string()),
         );
         assert!(m.is_err(), "Failed to parse contract number {:?}", m);
+    }
+    #[test]
+    fn new_member_space() {
+        let m = Member::new(
+            &Data::String("EV".to_string()),
+            &Data::Int(66),
+            &Data::String("John".to_string()),
+            &Data::String("Smith".to_string()),
+            &Data::Int(88),
+            &Data::Int(89),
+            &Data::String("Perouse".to_string()),
+            &Data::String("inaktiv".to_string()),
+        );
+        assert!(m.is_ok());
     }
 }
