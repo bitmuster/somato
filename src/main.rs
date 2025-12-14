@@ -5,13 +5,9 @@ https://crates.io/crates/calamine
 https://docs.rs/calamine/latest/calamine/
 
 */
-use anyhow::Result;
 
-mod joker;
-mod location;
-mod member;
-mod somajotr;
-mod tickoff;
+use anyhow::Result;
+use somajotr::somajotr;
 
 fn main() -> Result<()> {
     // let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
