@@ -8,21 +8,22 @@ use colorama::Colored;
 use strum::IntoEnumIterator;
 
 pub fn somajotr() -> Result<()> {
-    println!("Hello, world!");
-    let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-        08_Mitgliederliste/\
-        2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
     // let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-    //     Entenhausen/\
-    //     members_entenhausen.xlsx";
+    //     08_Mitgliederliste/\
+    //     2023-03-20_Mitgliederliste-Solawi-Heckengaeu_v3_Test_neu_fixed.xlsx";
     // let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
+    //     Daten_Stand_2025.11.27/\
     //     Joker_Solawi-Heckengaeu.xlsx";
+    // let tickoff_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
+    // Daten_Stand_2025.11.27/\
+    // 2024-10-28_Abhaklisten.xlsx";
+
+    let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
+    Entenhausen/\
+    members_synthetic.xlsx";
     let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-        Daten_Stand_2025.11.27/\
-        Joker_Solawi-Heckengaeu.xlsx";
-    let tickoff_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-        Daten_Stand_2025.11.27/\
-        2024-10-28_Abhaklisten.xlsx";
+    Entenhausen/\
+    jokers_synthetic.xlsx";
 
     let jokers = joker::read_jokers(&joker_file)?;
     let members = member::read_members(&members_file)?;

@@ -50,6 +50,23 @@ impl Joker {
         let location = Location::parse(&location_str)?;
 
         // This can be Error(NA) when the contract is inactive
+        match forename {
+            Data::String(_s) => {
+                // println!("Forename Found String {s}")
+            }
+            Data::Error(calamine::CellErrorType::NA) => {
+                // N/A is the only error type that we allow here due to
+                // inactive entries and defective queries
+                println!("Forename: Found Error N/A")
+            }
+            s => {
+                println!("Found inacceptable data in forename {s:?}");
+                return Err(anyhow!(
+                    "Found inacceptable data type in forename: {}",
+                    s
+                ));
+            }
+        }
         let forename = forename
             .as_string()
             .unwrap_or(format!("Error while parsing \"{:?}\"", forename))
