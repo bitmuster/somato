@@ -57,7 +57,7 @@ impl Joker {
             Data::Error(calamine::CellErrorType::NA) => {
                 // N/A is the only error type that we allow here due to
                 // inactive entries and defective queries
-                println!("Forename: Found Error N/A")
+                // println!("Forename: Found Error N/A")
             }
             s => {
                 println!("Found inacceptable data in forename {s:?}");
@@ -115,7 +115,7 @@ impl fmt::Display for Joker {
 pub fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
     println!("Checking Joker List");
     let mut joker_warnings = 0;
-    let warn_limit = 500;
+    let warn_limit = 5;
     'outer: for j in jokers.iter() {
         for m in members.iter() {
             if j.surname.to_lowercase() == m.surname.to_lowercase()

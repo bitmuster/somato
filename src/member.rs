@@ -79,7 +79,7 @@ impl Member {
             location: Location::parse(&location_str).unwrap(),
             active: active_bool,
         };
-        println!("{}", member);
+        // println!("{}", member);
         Ok(member)
     }
 }
@@ -216,12 +216,12 @@ pub fn filter_jokers(
 
 pub fn filter_members_by_location(
     members: &MemberList,
-    location: Location,
+    location: &Location,
 ) -> MemberList {
     let result: MemberList = members
         .clone()
         .into_iter()
-        .filter(|m| m.location == location)
+        .filter(|m| m.location == *location)
         .collect();
     println!("  Found {} members in {:?}", result.len(), location);
     // println!("{:?}", result);

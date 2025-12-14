@@ -27,4 +27,15 @@ impl Location {
         };
         Ok(loc)
     }
+    pub fn to_short(location: &Self) -> &'static str {
+        match location {
+            Self::Perouse => "PER",
+            Self::Gerlingen => "GER",
+            Self::Renningen => "REN",
+            Self::WeilDerStadt => "WDS",
+            Self::Leonberg => "LEO",
+            Self::Neuhausen => "NEU",
+            Self::NotParsed => "NOT",
+        }
+    }
 }

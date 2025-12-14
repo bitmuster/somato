@@ -12,8 +12,8 @@ pub fn somajotr(
     joker_file: &str,
     tickoff_file: &str,
 ) -> Result<()> {
-    let jokers = joker::read_jokers(&joker_file)?;
     let members = member::read_members(&members_file)?;
+    let jokers = joker::read_jokers(&joker_file)?;
 
     println!("Some exemplary members:");
     for member in members.iter().take(5) {
@@ -62,11 +62,11 @@ pub fn somajotr(
     );
     for location in Location::iter() {
         println!("Analysis for: {location:?}");
-        let location =
-            member::filter_members_by_location(&active_members, location);
-        let mb = member::filter_members_by_big(&location);
-        let ms = member::filter_members_by_small(&location);
-        let all = location.len();
+        let loc =
+            member::filter_members_by_location(&active_members, &location);
+        let mb = member::filter_members_by_big(&loc);
+        let ms = member::filter_members_by_small(&loc);
+        let all = loc.len();
         let big = mb.len();
         let small = ms.len();
         println!("  Found {all}, big {big}, small {small}");
@@ -83,8 +83,11 @@ pub fn somajotr(
         // member::print_members(&mb);
         // member::print_members(&ms);
 
-        let tick_off = tickoff::tick_off_list(tickoff_file, "GER")?;
-        let _ = tickoff::check_lists(&location, &tick_off);
+        let tick_off = tickoff::tick_off_list(
+            tickoff_file,
+            Location::to_short(&location),
+        )?;
+        let _ = tickoff::check_lists(&loc, &tick_off);
     }
 
     Ok(())
