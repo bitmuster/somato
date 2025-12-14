@@ -2,6 +2,7 @@
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 // use chrono::NaiveDate;
+use crate::location::Location;
 use crate::member;
 use colorama::Colored;
 
@@ -26,7 +27,7 @@ impl TickOffItem {
         // println!("Creating new entry with {:?} {:?} {:?}", name, big, small);
         let name = name
             .as_string()
-            .ok_or_else(|| return anyhow!("Cannot parse \"{}\"", name));
+            .ok_or_else(|| return anyhow!("Cannot parse name \"{}\"", name));
         // .unwrap_or(format!("Error while parsing \"{:?}\"", name));
         let big = match big {
             Some(i) => i.as_i64().unwrap_or(88) as u32,
@@ -45,6 +46,7 @@ impl TickOffItem {
         //     "Creating new entry with {:?} {:?} {:?}",
         //     item.name, item.big, item.small
         // );
+        println!("{item:?}");
         Ok(item)
     }
 }
@@ -79,7 +81,7 @@ pub type TickOffList = Vec<TickOffItem>;
 
 pub fn tick_off_list(
     tickoff_file: &str,
-    location: &str,
+    location: &Location,
 ) -> Result<TickOffList> {
     let mut excel: Xlsx<_> = open_workbook(tickoff_file).map_err(|e| {
         anyhow!(format!(
@@ -87,8 +89,11 @@ pub fn tick_off_list(
         ))
     })?;
     let mut tick_off_list = vec![];
-    // let mut jokers = Vec::new();
-    if let Ok(r) = excel.worksheet_range(location) {
+    let offset = match location {
+        Location::Perouse => 0,
+        _ => 1,
+    };
+    if let Ok(r) = excel.worksheet_range(location.to_short()) {
         for row in r.rows().skip(7).take(100) {
             // println!("Big: {} {} Small: {} {}", row[0], row[1], row[5], row[6],);
             // if let Data::DateTime(date) = row[0] {
@@ -100,8 +105,8 @@ pub fn tick_off_list(
             // let name_small = &row[5];
             // let amount_small = &row[6];
             // Perouse
-            let name_small = &row[4];
-            let amount_small = &row[5];
+            let name_small = &row[4 + offset];
+            let amount_small = &row[5 + offset];
             let item_big = TickOffItem::new(name_big, Some(amount_big), None);
             let item_small =
                 TickOffItem::new(name_small, None, Some(amount_small));
@@ -113,9 +118,13 @@ pub fn tick_off_list(
             }
             if let Ok(item) = item_big {
                 tick_off_list.push(item);
+            } else {
+                println!("Error while parsing big: {item_big:?}");
             }
             if let Ok(item) = item_small {
                 tick_off_list.push(item);
+            } else {
+                println!("Error while parsing small: {item_small:?}");
             }
             // let joker = Joker::new(
             //     &date, &name, &forename, warning, &location, big, small, line,

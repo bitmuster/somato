@@ -83,10 +83,7 @@ pub fn somajotr(
         // member::print_members(&mb);
         // member::print_members(&ms);
 
-        let tick_off = tickoff::tick_off_list(
-            tickoff_file,
-            Location::to_short(&location),
-        )?;
+        let tick_off = tickoff::tick_off_list(tickoff_file, &location)?;
         let _ = tickoff::check_lists(&loc, &tick_off);
     }
 
