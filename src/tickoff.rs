@@ -4,6 +4,7 @@ use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 // use chrono::NaiveDate;
 use crate::location::Location;
 use crate::member;
+use chrono;
 use colorama::Colored;
 
 #[derive(Debug, Clone)]
@@ -46,7 +47,7 @@ impl TickOffItem {
         //     "Creating new entry with {:?} {:?} {:?}",
         //     item.name, item.big, item.small
         // );
-        println!("{item:?}");
+        // println!("{item:?}");
         Ok(item)
     }
 }
@@ -89,42 +90,64 @@ pub fn tick_off_list(
         ))
     })?;
     let mut tick_off_list = vec![];
+
+    // Historic reasos
     let offset = match location {
         Location::Perouse => 0,
         _ => 1,
     };
+    let mut sum_big: u32 = 0;
+    let mut sum_small: u32 = 0;
     if let Ok(r) = excel.worksheet_range(location.to_short()) {
         for row in r.rows().skip(7).take(100) {
-            // println!("Big: {} {} Small: {} {}", row[0], row[1], row[5], row[6],);
-            // if let Data::DateTime(date) = row[0] {
-            //     println!("{}", NaiveDate::from(date.as_datetime().unwrap()));
-            // }
+            // println!(
+            //     "Big: \"{}\" {}\" Small: {}\" {}\"",
+            //     row[0],
+            //     row[1],
+            //     row[5 + offset],
+            //     row[6 + offset],
+            // );
+            if let Data::DateTime(date) = row[0] {
+                println!(
+                    "{}",
+                    chrono::NaiveDate::from(date.as_datetime().unwrap())
+                );
+            }
+            let (mut big_done, mut small_done) = (false, false);
             let name_big = &row[0];
             let amount_big = &row[1];
-            // Gerlingen
-            // let name_small = &row[5];
-            // let amount_small = &row[6];
-            // Perouse
+
             let name_small = &row[4 + offset];
             let amount_small = &row[5 + offset];
             let item_big = TickOffItem::new(name_big, Some(amount_big), None);
             let item_small =
                 TickOffItem::new(name_small, None, Some(amount_small));
-            if let Err(_) = item_big {
-                if let Err(_) = item_small {
-                    println!("Items exhausted");
-                    break;
-                }
-            }
+
             if let Ok(item) = item_big {
                 tick_off_list.push(item);
             } else {
-                println!("Error while parsing big: {item_big:?}");
+                match amount_big.as_i64() {
+                    Some(x) => sum_big = x as u32,
+                    None => {}
+                };
+                // println!("Error while parsing big: {item_big:?}");
+                big_done = true;
             }
             if let Ok(item) = item_small {
                 tick_off_list.push(item);
             } else {
-                println!("Error while parsing small: {item_small:?}");
+                match amount_small.as_i64() {
+                    Some(x) => sum_small = x as u32,
+                    None => {}
+                };
+                // println!("Error while parsing small: {item_small:?}");
+                small_done = true;
+            }
+            if big_done && small_done {
+                // println!("Items exhausted");
+                // println!("Parsed {amount_big:?} big amount");
+                // println!("Parsed {amount_small:?} small amount");
+                break;
             }
             // let joker = Joker::new(
             //     &date, &name, &forename, warning, &location, big, small, line,
@@ -133,5 +156,25 @@ pub fn tick_off_list(
             // line += 1;
         }
     }
+    let all_big: u32 = tick_off_list
+        .iter()
+        .filter(|x| x.big > 0)
+        .map(|x| x.big)
+        .sum();
+    let all_small: u32 = tick_off_list
+        .iter()
+        .filter(|x| x.small > 0)
+        .map(|x| x.small)
+        .sum();
+    println!("Parsed {sum_big} big amount");
+    println!("Parsed {sum_small} small amount");
+    assert_eq!(
+        sum_big, all_big,
+        "Amount for big in tickoff list does not match"
+    );
+    assert_eq!(
+        sum_small, all_small,
+        "Amount for small in tickoff list does not match"
+    );
     Ok(tick_off_list)
 }
