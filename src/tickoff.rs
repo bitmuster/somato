@@ -81,7 +81,11 @@ pub fn tick_off_list(
     tickoff_file: &str,
     location: &str,
 ) -> Result<TickOffList> {
-    let mut excel: Xlsx<_> = open_workbook(tickoff_file).unwrap();
+    let mut excel: Xlsx<_> = open_workbook(tickoff_file).map_err(|e| {
+        anyhow!(format!(
+            "Error {e} while loading tickoff file {tickoff_file}"
+        ))
+    })?;
     let mut tick_off_list = vec![];
     // let mut jokers = Vec::new();
     if let Ok(r) = excel.worksheet_range(location) {

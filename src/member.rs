@@ -100,7 +100,11 @@ impl fmt::Display for Member {
 }
 
 pub fn read_members(members_file: &str) -> Result<Vec<Member>> {
-    let mut excel: Xlsx<_> = open_workbook(members_file).unwrap();
+    let mut excel: Xlsx<_> = open_workbook(members_file).map_err(|e| {
+        anyhow!(format!(
+            "Error {e} whle loading members file {members_file}"
+        ))
+    })?;
 
     let mut members = Vec::new();
     if let Ok(r) = excel.worksheet_range("Ernteverträge") {

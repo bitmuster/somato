@@ -151,7 +151,9 @@ pub fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
 }
 
 pub fn read_jokers(joker_file: &str) -> Result<Vec<Joker>> {
-    let mut excel: Xlsx<_> = open_workbook(joker_file).unwrap();
+    let mut excel: Xlsx<_> = open_workbook(joker_file).map_err(|e| {
+        anyhow!(format!("Error {e} while loading joker file {joker_file}"))
+    })?;
 
     let mut jokers = Vec::new();
     if let Ok(r) = excel.worksheet_range("Eingabe") {

@@ -1,17 +1,12 @@
 use somajotr::somajotr;
 
 #[test]
-fn basic_load_synth() {
-    let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-    Entenhausen/\
-    members_synthetic.xlsx";
-    let joker_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\
-    Entenhausen/\
-    jokers_synthetic.xlsx";
-    let tickoff_file = "";
+fn basic_load_synth() -> Result<(), anyhow::Error> {
+    let members_file = "tests/test_data/members_synthetic.xlsx";
+    let joker_file = "tests/test_data/jokers_synthetic.xlsx";
+    let tickoff_file = "tests/test_data/tickoff_synthetic.xlsx";
 
-    let result = somajotr::somajotr(members_file, joker_file, tickoff_file);
-    assert!(result.is_ok());
+    somajotr::somajotr(members_file, joker_file, tickoff_file)
 }
 
 #[test]

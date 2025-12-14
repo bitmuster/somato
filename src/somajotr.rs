@@ -33,7 +33,7 @@ pub fn somajotr(
 
     let active_members = member::filter_active_members(members.clone());
 
-    let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 11, 21).unwrap();
+    let _date = chrono::naive::NaiveDate::from_ymd_opt(2025, 11, 21).unwrap();
     let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 8, 15).unwrap();
     let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
     println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
@@ -83,8 +83,8 @@ pub fn somajotr(
         // member::print_members(&mb);
         // member::print_members(&ms);
 
-        // let tick_off = tickoff::tick_off_list(tickoff_file, "GER")?;
-        // let _ = tickoff::check_lists(&gerlingen, &tick_off);
+        let tick_off = tickoff::tick_off_list(tickoff_file, "GER")?;
+        let _ = tickoff::check_lists(&location, &tick_off);
     }
 
     Ok(())
