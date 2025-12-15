@@ -69,9 +69,14 @@ pub fn check_lists(
             let initials = split.next().unwrap(); // should be " T."
             // println!("{name} {initials}");
             // println!("Name {}", name);
-            if member.surname == name {
-                if member.forename.chars().next().unwrap()
-                    == initials.chars().skip(1).next().unwrap()
+            if member.surname.to_lowercase() == name.to_lowercase() {
+                if member.forename.chars().next().unwrap().to_ascii_lowercase()
+                    == initials
+                        .chars()
+                        .skip(1)
+                        .next()
+                        .unwrap()
+                        .to_ascii_lowercase()
                 {
                     // println!("Found {}", member.surname);
                     continue 'outer;
@@ -218,6 +223,11 @@ mod tickoff_tests {
             big: 2,
             small: 3,
         };
+        let a_small = TickOffItem {
+            name: "test, a.".to_string(),
+            big: 2,
+            small: 3,
+        };
         let b = TickOffItem {
             name: "Test, B.".to_string(),
             big: 2,
@@ -253,7 +263,13 @@ mod tickoff_tests {
             &vec![m.clone(), n.clone()],
             &vec![a.clone(), b.clone()],
         );
-        assert!(r.is_ok());
+        assert!(r.is_ok(), "Base test");
+
+        let r = check_lists(
+            &vec![m.clone(), n.clone()],
+            &vec![a_small.clone(), b.clone()],
+        );
+        assert!(r.is_ok(), "Error in small caps");
 
         // One entry missing
         let r = check_lists(&vec![m.clone(), n.clone()], &vec![a.clone()]);
