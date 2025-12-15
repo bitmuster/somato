@@ -58,8 +58,12 @@ pub fn check_lists(
     members: &member::MemberList,
     tickoff: &TickOffList,
 ) -> Result<()> {
-    println!("Got {} members to check", members.len());
-    println!("Got {} tickoff to check", tickoff.len());
+    println!("Checking tickoff list for missig members.");
+    println!(
+        "  Got {} members and {} tickoff to check",
+        members.len(),
+        tickoff.len()
+    );
     'outer: for member in members.iter() {
         // println!("Checking member {member}");
 
@@ -85,7 +89,7 @@ pub fn check_lists(
         }
         println!(
             "{}",
-            format!("Cannot find member \"{}\" in tickoff list", member)
+            format!("    Cannot find member \"{}\" in tickoff list", member)
                 .color("red")
         );
         return Err(anyhow!(format!(
@@ -102,6 +106,7 @@ pub fn tick_off_list(
     tickoff_file: &str,
     location: &Location,
 ) -> Result<TickOffList> {
+    println!("Parsing tickoff list");
     let mut excel: Xlsx<_> = open_workbook(tickoff_file).map_err(|e| {
         anyhow!(format!(
             "Error {e} while loading tickoff file {tickoff_file}"
@@ -184,8 +189,8 @@ pub fn tick_off_list(
         .filter(|x| x.small > 0)
         .map(|x| x.small)
         .sum();
-    println!("Parsed {sum_big} big amount");
-    println!("Parsed {sum_small} small amount");
+    println!("  Parsed {sum_big} big amount");
+    println!("  Parsed {sum_small} small amount");
     assert_eq!(
         sum_big, all_big,
         "Amount for big in tickoff list does not match"
@@ -233,11 +238,11 @@ mod tickoff_tests {
             big: 2,
             small: 3,
         };
-        let c = TickOffItem {
-            name: "Fail".to_string(),
-            big: 2,
-            small: 3,
-        };
+        // let c = TickOffItem {
+        //     name: "Fail".to_string(),
+        //     big: 2,
+        //     small: 3,
+        // };
         let m = Member::new_from_values(
             "EV-1",
             1,
