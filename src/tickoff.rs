@@ -52,6 +52,7 @@ impl TickOffItem {
     }
 }
 
+/// TODO: Check name format "Name, N." with regex
 pub fn check_lists(
     members: &member::MemberList,
     tickoff: &TickOffList,
@@ -62,11 +63,18 @@ pub fn check_lists(
         // println!("Checking member {member}");
 
         for tick in tickoff.iter() {
-            let name = tick.name.split(",").next().unwrap();
+            let mut split = tick.name.split(",");
+            let name = split.next().unwrap();
+            let initials = split.next().unwrap(); // should be " T."
+            // println!("{name} {initials}");
             // println!("Name {}", name);
             if member.surname == name {
-                // println!("Found {}", member.surname);
-                continue 'outer;
+                if member.forename.chars().next().unwrap()
+                    == initials.chars().skip(1).next().unwrap()
+                {
+                    // println!("Found {}", member.surname);
+                    continue 'outer;
+                }
             }
         }
         println!(
@@ -74,6 +82,10 @@ pub fn check_lists(
             format!("Cannot find member \"{}\" in tickoff list", member)
                 .color("red")
         );
+        return Err(anyhow!(format!(
+            "Cannot find member \"{}\" in tickoff list",
+            member
+        )));
     }
     Ok(())
 }
@@ -201,12 +213,17 @@ mod tickoff_tests {
     #[test]
     fn test_check_lists() {
         let a = TickOffItem {
-            name: "Test".to_string(),
+            name: "Test, A.".to_string(),
             big: 2,
             small: 3,
         };
         let b = TickOffItem {
-            name: "Test".to_string(),
+            name: "Test, B.".to_string(),
+            big: 2,
+            small: 3,
+        };
+        let c = TickOffItem {
+            name: "Fail".to_string(),
             big: 2,
             small: 3,
         };
@@ -214,7 +231,7 @@ mod tickoff_tests {
             "EV-1",
             1,
             "Test",
-            "Bob",
+            "Alice",
             1,
             1,
             Location::Perouse,
@@ -224,14 +241,26 @@ mod tickoff_tests {
             "EV-2",
             1,
             "Test",
-            "Alice",
+            "Bob",
             1,
             1,
             Location::Perouse,
             false,
         );
 
-        let r = check_lists(&vec![m, n], &vec![a, b]);
+        let r = check_lists(
+            &vec![m.clone(), n.clone()],
+            &vec![a.clone(), b.clone()],
+        );
         assert!(r.is_ok());
+
+        let r = check_lists(&vec![m.clone(), n.clone()], &vec![a.clone()]);
+        assert!(r.is_err());
+
+        // let r = check_lists(
+        //     &vec![m.clone(), n.clone()],
+        //     &vec![a.clone(), b.clone(), c.clone()],
+        // );
+        // assert!(r.is_err());
     }
 }
