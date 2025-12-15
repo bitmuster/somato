@@ -52,6 +52,7 @@ impl TickOffItem {
     }
 }
 
+/// Checks if all members are mentioned in the tickoff list
 /// TODO: Check name format "Name, N." with regex
 pub fn check_lists(
     members: &member::MemberList,
@@ -254,9 +255,19 @@ mod tickoff_tests {
         );
         assert!(r.is_ok());
 
+        // One entry missing
         let r = check_lists(&vec![m.clone(), n.clone()], &vec![a.clone()]);
         assert!(r.is_err());
 
+        // Second entry missing
+        let r = check_lists(&vec![m.clone(), n.clone()], &vec![b.clone()]);
+        assert!(r.is_err());
+
+        // Empty tickoff
+        let r = check_lists(&vec![m.clone(), n.clone()], &vec![]);
+        assert!(r.is_err());
+
+        // Additional tickoffs cannot be detected for now
         // let r = check_lists(
         //     &vec![m.clone(), n.clone()],
         //     &vec![a.clone(), b.clone(), c.clone()],
