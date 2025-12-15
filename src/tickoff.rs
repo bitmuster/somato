@@ -178,3 +178,60 @@ pub fn tick_off_list(
     );
     Ok(tick_off_list)
 }
+
+#[cfg(test)]
+mod tickoff_tests {
+
+    use super::*;
+    use crate::member::Member;
+
+    #[test]
+    fn test_new() {
+        let _ = TickOffItem::new(
+            &Data::String("Test".to_string()),
+            Some(&Data::Int(5)),
+            Some(&Data::Int(6)),
+        );
+        let _t = TickOffItem {
+            name: "Test".to_string(),
+            big: 2,
+            small: 3,
+        };
+    }
+    #[test]
+    fn test_check_lists() {
+        let a = TickOffItem {
+            name: "Test".to_string(),
+            big: 2,
+            small: 3,
+        };
+        let b = TickOffItem {
+            name: "Test".to_string(),
+            big: 2,
+            small: 3,
+        };
+        let m = Member::new_from_values(
+            "EV-1",
+            1,
+            "Test",
+            "Bob",
+            1,
+            1,
+            Location::Perouse,
+            false,
+        );
+        let n = Member::new_from_values(
+            "EV-2",
+            1,
+            "Test",
+            "Alice",
+            1,
+            1,
+            Location::Perouse,
+            false,
+        );
+
+        let r = check_lists(&vec![m, n], &vec![a, b]);
+        assert!(r.is_ok());
+    }
+}

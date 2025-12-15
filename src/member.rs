@@ -82,6 +82,29 @@ impl Member {
         // println!("{}", member);
         Ok(member)
     }
+
+    #[allow(unused)]
+    pub fn new_from_values(
+        contract_no: &str,
+        member_no: u32,
+        surname: &str,
+        forename: &str,
+        big: u32,
+        small: u32,
+        location: Location,
+        active: bool,
+    ) -> Member {
+        Member {
+            contract_no: contract_no.to_string(),
+            surname: surname.to_string(),
+            forename: forename.to_string(),
+            member_no,
+            big,
+            small,
+            location,
+            active,
+        }
+    }
 }
 
 impl fmt::Display for Member {

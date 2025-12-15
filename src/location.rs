@@ -1,5 +1,4 @@
 use anyhow::{Result, anyhow};
-use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 #[derive(EnumIter, Debug, Clone, PartialEq)]
