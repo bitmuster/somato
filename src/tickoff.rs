@@ -1,6 +1,7 @@
 // use crate::location::Location;
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
+use regex;
 // use chrono::NaiveDate;
 use crate::location::Location;
 use crate::member;
@@ -52,22 +53,46 @@ impl TickOffItem {
     }
 }
 
-/// Checks if all members are mentioned in the tickoff list
+pub fn check_tickoff_name(name: &str) -> bool {
+    let re = regex::Regex::new(r"^[A-za-z ]*, [[:alpha:]].$").unwrap();
+    re.is_match(name)
+}
+
+/// Checks if all members are mentioned in the tickoff list.
+/// Warnings are returned with an Option<usize>
 /// TODO: Check name format "Name, N." with regex
 pub fn check_lists(
     members: &member::MemberList,
     tickoff: &TickOffList,
-) -> Result<()> {
+) -> Result<Option<usize>> {
     println!("Checking tickoff list for missig members.");
     println!(
         "  Got {} members and {} tickoff to check",
         members.len(),
         tickoff.len()
     );
+    let mut warnings = None;
+
     'outer: for member in members.iter() {
         // println!("Checking member {member}");
 
         for tick in tickoff.iter() {
+            if !check_tickoff_name(&tick.name) {
+                println!(
+                    "{}",
+                    format!(
+                        "    Malformed name in tickoff list  \"{}\"",
+                        tick.name
+                    )
+                    .color("red")
+                );
+                warnings = match warnings {
+                    Some(w) => Some(w + 1),
+                    None => Some(1),
+                };
+
+                continue;
+            }
             let mut split = tick.name.split(",");
             let name = split.next().unwrap();
             let initials = split.next().unwrap(); // should be " T."
@@ -92,12 +117,16 @@ pub fn check_lists(
             format!("    Cannot find member \"{}\" in tickoff list", member)
                 .color("red")
         );
-        return Err(anyhow!(format!(
-            "Cannot find member \"{}\" in tickoff list",
-            member
-        )));
+        // return Err(anyhow!(format!(
+        //     "Cannot find member \"{}\" in tickoff list",
+        //     member
+        // )));
+        warnings = match warnings {
+            Some(w) => Some(w + 1),
+            None => Some(1),
+        };
     }
-    Ok(())
+    Ok(warnings)
 }
 
 pub type TickOffList = Vec<TickOffItem>;
@@ -238,11 +267,11 @@ mod tickoff_tests {
             big: 2,
             small: 3,
         };
-        // let c = TickOffItem {
-        //     name: "Fail".to_string(),
-        //     big: 2,
-        //     small: 3,
-        // };
+        let c = TickOffItem {
+            name: "Fail".to_string(),
+            big: 2,
+            small: 3,
+        };
         let m = Member::new_from_values(
             "EV-1",
             1,
@@ -275,18 +304,26 @@ mod tickoff_tests {
             &vec![a_small.clone(), b.clone()],
         );
         assert!(r.is_ok(), "Error in small caps");
+        assert_eq!(r.unwrap(), None);
 
         // One entry missing
         let r = check_lists(&vec![m.clone(), n.clone()], &vec![a.clone()]);
-        assert!(r.is_err());
+        assert!(r.is_ok());
+        assert_eq!(r.unwrap(), Some(1));
 
         // Second entry missing
         let r = check_lists(&vec![m.clone(), n.clone()], &vec![b.clone()]);
-        assert!(r.is_err());
+        assert!(r.is_ok());
+        assert_eq!(r.unwrap(), Some(1));
 
         // Empty tickoff
         let r = check_lists(&vec![m.clone(), n.clone()], &vec![]);
-        assert!(r.is_err());
+        assert_eq!(r.unwrap(), Some(2));
+
+        // Invalid entry
+        let r = check_lists(&vec![m.clone(), n.clone()], &vec![c.clone()]);
+        assert!(r.is_ok());
+        assert_eq!(r.unwrap(), Some(4));
 
         // Additional tickoffs cannot be detected for now
         // let r = check_lists(
