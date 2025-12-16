@@ -55,14 +55,18 @@ impl TickOffItem {
 
 /// Check if the given name is well formated
 /// Allowed : "Surname, N."
+/// TODO: This will fail for chars with all kinds of apostophs and forenames that
+/// start with umlauts.
 pub fn check_name_with_initial(name: &str) -> bool {
-    let re = lazy_regex::regex!(r"^[A-za-z ]*, [[:alpha:]].$");
+    let re = lazy_regex::regex!(r"^[A-ZÄÖÜa-zäöü\- ]*, [[:alpha:]].$");
     re.is_match(name)
 }
 
 /// Split the given name into surname and first part of forename
+/// TODO: This will fail for chars with all kinds of apostophs and forenames that
+/// start with umlauts.
 pub fn split_name(name: &str) -> Option<(&str, &str)> {
-    let re = lazy_regex::regex!(r"^([A-za-z ]*), ([[:alpha:]]).$");
+    let re = lazy_regex::regex!(r"^([A-ZÄÖÜa-zäöü\- ]*), ([[:alpha:]]).$");
     let Some((_, [surname, initial])) =
         re.captures(name).map(|caps| caps.extract())
     else {
@@ -362,6 +366,8 @@ mod tickoff_tests {
         assert!(check_name_with_initial("Smith, J."));
         assert!(check_name_with_initial("van der Smith, J."));
         assert!(check_name_with_initial("van der smith, j."));
+        // assert!(check_name_with_initial("ÄÖÜäöü, ä."));
+        assert!(check_name_with_initial("ÄÖÜäöü, t."));
 
         assert!(!check_name_with_initial("van der Smith, J.."));
         assert!(!check_name_with_initial("van der Smith, J"));
@@ -382,6 +388,12 @@ mod tickoff_tests {
     fn test_name_equality() {
         assert!(check_name_equality("Smith", "John", "Smith, J."));
         assert!(check_name_equality("Smith", "Bob", "Smith, B."));
+        assert!(check_name_equality("Über", "Börkan", "Über, B."));
+        assert!(check_name_equality(
+            "von Über-Flieger",
+            "Börkan",
+            "von Über-Flieger, B."
+        ));
 
         assert!(!check_name_equality("Smith", "John", "Smith"));
         assert!(!check_name_equality("Smith", "Bob", "Smith, J."));
