@@ -53,9 +53,34 @@ impl TickOffItem {
     }
 }
 
-pub fn check_tickoff_name(name: &str) -> bool {
+pub fn check_initial(name: &str) -> bool {
     let re = lazy_regex::regex!(r"^[A-za-z ]*, [[:alpha:]].$");
     re.is_match(name)
+}
+pub fn check_name_equality(
+    surname: &str,
+    forename: &str,
+    initial: &str,
+) -> bool {
+    if !check_initial(initial) {
+        return false;
+    }
+    let mut split = initial.split(",");
+    let name = split.next().unwrap();
+    let initials = split.next().unwrap(); // should be " T."
+    if surname.to_lowercase() == name.to_lowercase() {
+        if forename.chars().next().unwrap().to_ascii_lowercase()
+            == initials
+                .chars()
+                .skip(1)
+                .next()
+                .unwrap()
+                .to_ascii_lowercase()
+        {
+            return true;
+        }
+    }
+    false
 }
 
 /// Checks if all members are mentioned in the tickoff list.
@@ -77,7 +102,7 @@ pub fn check_lists(
         // println!("Checking member {member}");
 
         for tick in tickoffset.iter() {
-            if !check_tickoff_name(&tick.name) {
+            if !check_initial(&tick.name) {
                 println!(
                     "{}",
                     format!(
@@ -331,5 +356,26 @@ mod tickoff_tests {
         //     &vec![a.clone(), b.clone(), c.clone()],
         // );
         // assert!(r.is_err());
+    }
+
+    #[test]
+    fn test_check_initial() {
+        assert!(check_initial("Smith, J."));
+        assert!(check_initial("van der Smith, J."));
+        assert!(check_initial("van der smith, j."));
+
+        assert!(!check_initial("van der Smith, J.."));
+        assert!(!check_initial("van der Smith, J"));
+        assert!(!check_initial("Smith"));
+    }
+
+    #[test]
+    fn test_name_equality() {
+        assert!(check_name_equality("Smith", "John", "Smith, J."));
+        assert!(check_name_equality("Smith", "Bob", "Smith, B."));
+
+        assert!(!check_name_equality("Smith", "John", "Smith"));
+        assert!(!check_name_equality("Smith", "Bob", "Smith, J."));
+        assert!(!check_name_equality("Smith", "Bob", "Smith J."));
     }
 }
