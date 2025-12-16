@@ -278,8 +278,8 @@ mod tickoff_tests {
             small: 3,
         };
     }
-    #[test]
-    fn test_check_for_members_in_tickoff_list() {
+
+    fn gen_toi() -> [TickOffItem; 4] {
         let a = TickOffItem {
             name: "Test, A.".to_string(),
             big: 2,
@@ -300,6 +300,10 @@ mod tickoff_tests {
             big: 2,
             small: 3,
         };
+        [a, a_small, b, c]
+    }
+
+    fn gen_members() -> [Member; 2] {
         let m = Member::new_from_values(
             "EV-1",
             1,
@@ -320,6 +324,13 @@ mod tickoff_tests {
             Location::Perouse,
             false,
         );
+        [m, n]
+    }
+
+    #[test]
+    fn test_check_for_members_in_tickoff_list() {
+        let [a, a_small, b, c] = gen_toi();
+        let [m, n] = gen_members();
 
         let r = check_for_members_in_tickoff_list(
             &vec![m.clone(), n.clone()],
