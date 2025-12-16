@@ -1,13 +1,12 @@
 // use crate::location::Location;
-use anyhow::{Result, anyhow};
-use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
-use regex;
-use std::collections::HashSet;
-// use chrono::NaiveDate;
 use crate::location::Location;
 use crate::member;
+use anyhow::{Result, anyhow};
+use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use chrono;
 use colorama::Colored;
+use lazy_regex;
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TickOffItem {
@@ -55,7 +54,7 @@ impl TickOffItem {
 }
 
 pub fn check_tickoff_name(name: &str) -> bool {
-    let re = regex::Regex::new(r"^[A-za-z ]*, [[:alpha:]].$").unwrap();
+    let re = lazy_regex::regex!(r"^[A-za-z ]*, [[:alpha:]].$");
     re.is_match(name)
 }
 
@@ -72,8 +71,7 @@ pub fn check_lists(
         tickoff.len()
     );
     let mut warnings = None;
-    let mut tickoffset: HashSet<TickOffItem> =
-        HashSet::from_iter(tickoff.clone());
+    let tickoffset: HashSet<TickOffItem> = HashSet::from_iter(tickoff.clone());
 
     'outer: for member in members.iter() {
         // println!("Checking member {member}");
