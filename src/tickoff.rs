@@ -53,29 +53,43 @@ impl TickOffItem {
     }
 }
 
-pub fn check_initial(name: &str) -> bool {
+/// Check if the given name is well formated
+/// Allowed : "Surname, N."
+pub fn check_name_with_initial(name: &str) -> bool {
     let re = lazy_regex::regex!(r"^[A-za-z ]*, [[:alpha:]].$");
     re.is_match(name)
 }
+
+/// Split the given name into surname and first part of forename
+pub fn split_name(name: &str) -> Option<(&str, &str)> {
+    let re = lazy_regex::regex!(r"^([A-za-z ]*), ([[:alpha:]]).$");
+    let Some((_, [surname, initial])) =
+        re.captures(name).map(|caps| caps.extract())
+    else {
+        return None;
+    };
+
+    Some((surname, initial))
+}
+
+/// Check names given as surename, forename for equality with the initial.
+/// E.g. "Surname, N."
+/// Warning this check is not exhaustive as there could be multiple forenames
+/// with that begin with the same character.
 pub fn check_name_equality(
     surname: &str,
     forename: &str,
-    initial: &str,
+    name_with_initial: &str,
 ) -> bool {
-    if !check_initial(initial) {
+    if !check_name_with_initial(name_with_initial) {
         return false;
     }
-    let mut split = initial.split(",");
-    let name = split.next().unwrap();
-    let initials = split.next().unwrap(); // should be " T."
+    let Some((name, initial)) = split_name(name_with_initial) else {
+        return false;
+    };
     if surname.to_lowercase() == name.to_lowercase() {
         if forename.chars().next().unwrap().to_ascii_lowercase()
-            == initials
-                .chars()
-                .skip(1)
-                .next()
-                .unwrap()
-                .to_ascii_lowercase()
+            == initial.chars().next().unwrap().to_ascii_lowercase()
         {
             return true;
         }
@@ -102,7 +116,7 @@ pub fn check_lists(
         // println!("Checking member {member}");
 
         for tick in tickoffset.iter() {
-            if !check_initial(&tick.name) {
+            if !check_name_with_initial(&tick.name) {
                 println!(
                     "{}",
                     format!(
@@ -117,24 +131,13 @@ pub fn check_lists(
                 };
                 continue;
             }
-            let mut split = tick.name.split(",");
-            let name = split.next().unwrap();
-            let initials = split.next().unwrap(); // should be " T."
-            // println!("{name} {initials}");
-            // println!("Name {}", name);
-            if member.surname.to_lowercase() == name.to_lowercase() {
-                if member.forename.chars().next().unwrap().to_ascii_lowercase()
-                    == initials
-                        .chars()
-                        .skip(1)
-                        .next()
-                        .unwrap()
-                        .to_ascii_lowercase()
-                {
-                    // tickoff.remove(tick);
-                    // println!("Found {}", member.surname);
-                    continue 'outer;
-                }
+            if check_name_equality(
+                &member.surname,
+                &member.forename,
+                &tick.name,
+            ) {
+                // println!("Found {}", member.surname);
+                continue 'outer;
             }
         }
         println!(
@@ -142,10 +145,6 @@ pub fn check_lists(
             format!("    Cannot find member \"{}\" in tickoff list", member)
                 .color("red")
         );
-        // return Err(anyhow!(format!(
-        //     "Cannot find member \"{}\" in tickoff list",
-        //     member
-        // )));
         warnings = match warnings {
             Some(w) => Some(w + 1),
             None => Some(1),
@@ -360,13 +359,23 @@ mod tickoff_tests {
 
     #[test]
     fn test_check_initial() {
-        assert!(check_initial("Smith, J."));
-        assert!(check_initial("van der Smith, J."));
-        assert!(check_initial("van der smith, j."));
+        assert!(check_name_with_initial("Smith, J."));
+        assert!(check_name_with_initial("van der Smith, J."));
+        assert!(check_name_with_initial("van der smith, j."));
 
-        assert!(!check_initial("van der Smith, J.."));
-        assert!(!check_initial("van der Smith, J"));
-        assert!(!check_initial("Smith"));
+        assert!(!check_name_with_initial("van der Smith, J.."));
+        assert!(!check_name_with_initial("van der Smith, J"));
+        assert!(!check_name_with_initial("Smith"));
+    }
+
+    #[test]
+    fn test_split_name() {
+        assert_eq!(split_name("Smith, J."), Some(("Smith", "J")));
+
+        assert_eq!(split_name("Smith, t."), Some(("Smith", "t")));
+        assert_eq!(split_name("Smith"), None);
+        assert_eq!(split_name("Smith J."), None);
+        assert_eq!(split_name("Smith,, J"), None);
     }
 
     #[test]
