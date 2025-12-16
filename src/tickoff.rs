@@ -2,13 +2,14 @@
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use regex;
+use std::collections::HashSet;
 // use chrono::NaiveDate;
 use crate::location::Location;
 use crate::member;
 use chrono;
 use colorama::Colored;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TickOffItem {
     // pub date: NaiveDate,
     // pub surname: String,
@@ -60,7 +61,6 @@ pub fn check_tickoff_name(name: &str) -> bool {
 
 /// Checks if all members are mentioned in the tickoff list.
 /// Warnings are returned with an Option<usize>
-/// TODO: Check name format "Name, N." with regex
 pub fn check_lists(
     members: &member::MemberList,
     tickoff: &TickOffList,
@@ -72,11 +72,13 @@ pub fn check_lists(
         tickoff.len()
     );
     let mut warnings = None;
+    let mut tickoffset: HashSet<TickOffItem> =
+        HashSet::from_iter(tickoff.clone());
 
     'outer: for member in members.iter() {
         // println!("Checking member {member}");
 
-        for tick in tickoff.iter() {
+        for tick in tickoffset.iter() {
             if !check_tickoff_name(&tick.name) {
                 println!(
                     "{}",
@@ -90,7 +92,6 @@ pub fn check_lists(
                     Some(w) => Some(w + 1),
                     None => Some(1),
                 };
-
                 continue;
             }
             let mut split = tick.name.split(",");
@@ -107,6 +108,7 @@ pub fn check_lists(
                         .unwrap()
                         .to_ascii_lowercase()
                 {
+                    // tickoff.remove(tick);
                     // println!("Found {}", member.surname);
                     continue 'outer;
                 }
