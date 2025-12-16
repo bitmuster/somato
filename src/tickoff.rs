@@ -102,8 +102,8 @@ pub fn check_name_equality(
 }
 
 /// Checks if all members are mentioned in the tickoff list.
-/// Warnings are returned with an Option<usize>
-pub fn check_lists(
+/// Number of warnings is returned with an Option<usize>
+pub fn check_for_members_in_tickoff_list(
     members: &member::MemberList,
     tickoff: &TickOffList,
 ) -> Result<Option<usize>> {
@@ -279,7 +279,7 @@ mod tickoff_tests {
         };
     }
     #[test]
-    fn test_check_lists() {
+    fn test_check_for_members_in_tickoff_list() {
         let a = TickOffItem {
             name: "Test, A.".to_string(),
             big: 2,
@@ -321,13 +321,13 @@ mod tickoff_tests {
             false,
         );
 
-        let r = check_lists(
+        let r = check_for_members_in_tickoff_list(
             &vec![m.clone(), n.clone()],
             &vec![a.clone(), b.clone()],
         );
         assert!(r.is_ok(), "Base test");
 
-        let r = check_lists(
+        let r = check_for_members_in_tickoff_list(
             &vec![m.clone(), n.clone()],
             &vec![a_small.clone(), b.clone()],
         );
@@ -335,26 +335,38 @@ mod tickoff_tests {
         assert_eq!(r.unwrap(), None);
 
         // One entry missing
-        let r = check_lists(&vec![m.clone(), n.clone()], &vec![a.clone()]);
+        let r = check_for_members_in_tickoff_list(
+            &vec![m.clone(), n.clone()],
+            &vec![a.clone()],
+        );
         assert!(r.is_ok());
         assert_eq!(r.unwrap(), Some(1));
 
         // Second entry missing
-        let r = check_lists(&vec![m.clone(), n.clone()], &vec![b.clone()]);
+        let r = check_for_members_in_tickoff_list(
+            &vec![m.clone(), n.clone()],
+            &vec![b.clone()],
+        );
         assert!(r.is_ok());
         assert_eq!(r.unwrap(), Some(1));
 
         // Empty tickoff
-        let r = check_lists(&vec![m.clone(), n.clone()], &vec![]);
+        let r = check_for_members_in_tickoff_list(
+            &vec![m.clone(), n.clone()],
+            &vec![],
+        );
         assert_eq!(r.unwrap(), Some(2));
 
         // Invalid entry
-        let r = check_lists(&vec![m.clone(), n.clone()], &vec![c.clone()]);
+        let r = check_for_members_in_tickoff_list(
+            &vec![m.clone(), n.clone()],
+            &vec![c.clone()],
+        );
         assert!(r.is_ok());
         assert_eq!(r.unwrap(), Some(4));
 
         // Additional tickoffs cannot be detected for now
-        // let r = check_lists(
+        // let r = check_for_members_in_tickoff_list(
         //     &vec![m.clone(), n.clone()],
         //     &vec![a.clone(), b.clone(), c.clone()],
         // );
