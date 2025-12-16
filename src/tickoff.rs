@@ -59,7 +59,14 @@ impl TickOffItem {
 /// start with umlauts.
 pub fn check_name_with_initial(name: &str) -> bool {
     let re = lazy_regex::regex!(r"^[A-ZÄÖÜa-zäöü\- ]*, [[:alpha:]].$");
-    re.is_match(name)
+    let rematch = re.is_match(name);
+    if !rematch {
+        println!(
+            "{}",
+            format!("    Malformed name \"{}\"", name).color("red")
+        );
+    };
+    rematch
 }
 
 /// Split the given name into surname and first part of forename
@@ -121,14 +128,6 @@ pub fn check_for_members_in_tickoff_list(
 
         for tick in tickoffset.iter() {
             if !check_name_with_initial(&tick.name) {
-                println!(
-                    "{}",
-                    format!(
-                        "    Malformed name in tickoff list  \"{}\"",
-                        tick.name
-                    )
-                    .color("red")
-                );
                 warnings = match warnings {
                     Some(w) => Some(w + 1),
                     None => Some(1),
@@ -147,6 +146,53 @@ pub fn check_for_members_in_tickoff_list(
         println!(
             "{}",
             format!("    Cannot find member \"{}\" in tickoff list", member)
+                .color("red")
+        );
+        warnings = match warnings {
+            Some(w) => Some(w + 1),
+            None => Some(1),
+        };
+    }
+    Ok(warnings)
+}
+
+/// Checks if all members are mentioned in the tickoff list.
+/// Number of warnings is returned with an Option<usize>
+pub fn check_tickoff_list_against_members(
+    members: &member::MemberList,
+    tickoff: &TickOffList,
+) -> Result<Option<usize>> {
+    println!("Checking members for missig enries in tickoff list.");
+    println!(
+        "  Got {} members and {} tickoff to check",
+        members.len(),
+        tickoff.len()
+    );
+    let mut warnings = None;
+
+    'outer: for tick in tickoff.iter() {
+        for member in members.iter() {
+            // println!("Checking member {member}");
+
+            if !check_name_with_initial(&tick.name) {
+                warnings = match warnings {
+                    Some(w) => Some(w + 1),
+                    None => Some(1),
+                };
+                continue;
+            }
+            if check_name_equality(
+                &member.surname,
+                &member.forename,
+                &tick.name,
+            ) {
+                // println!("Found {}", member.surname);
+                continue 'outer;
+            }
+        }
+        println!(
+            "{}",
+            format!("    Cannot find item \"{}\" in member list", tick.name)
                 .color("red")
         );
         warnings = match warnings {
@@ -337,6 +383,7 @@ mod tickoff_tests {
             &vec![a.clone(), b.clone()],
         );
         assert!(r.is_ok(), "Base test");
+        assert_eq!(r.unwrap(), None);
 
         let r = check_for_members_in_tickoff_list(
             &vec![m.clone(), n.clone()],
@@ -382,6 +429,32 @@ mod tickoff_tests {
         //     &vec![a.clone(), b.clone(), c.clone()],
         // );
         // assert!(r.is_err());
+    }
+    #[test]
+    fn test_check_tickoff_list_against_members() {
+        let [a, _a_small, b, _c] = gen_toi();
+        let [m, n] = gen_members();
+
+        let r = check_tickoff_list_against_members(
+            &vec![m.clone(), n.clone()],
+            &vec![a.clone(), b.clone()],
+        );
+        assert!(r.is_ok(), "Base test");
+        assert_eq!(r.unwrap(), None);
+
+        let r = check_tickoff_list_against_members(
+            &vec![m.clone()],
+            &vec![a.clone(), b.clone()],
+        );
+        assert!(r.is_ok(), "One missing");
+        assert_eq!(r.unwrap(), Some(1));
+
+        let r = check_tickoff_list_against_members(
+            &vec![],
+            &vec![a.clone(), b.clone()],
+        );
+        assert!(r.is_ok(), "Two missing");
+        assert_eq!(r.unwrap(), Some(2));
     }
 
     #[test]

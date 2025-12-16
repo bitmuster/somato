@@ -14,7 +14,7 @@ pub fn somajotr(
 ) -> Result<()> {
     let members = member::read_members(&members_file)?;
     let jokers = joker::read_jokers(&joker_file)?;
-
+    let mut warnings = 0;
     println!("Some exemplary members:");
     for member in members.iter().take(5) {
         println!("    {}", member);
@@ -84,8 +84,19 @@ pub fn somajotr(
         // member::print_members(&ms);
 
         let tick_off = tickoff::tick_off_list(tickoff_file, &location)?;
-        let _ = tickoff::check_for_members_in_tickoff_list(&loc, &tick_off);
+        if let Some(warn) =
+            tickoff::check_for_members_in_tickoff_list(&loc, &tick_off).unwrap()
+        {
+            warnings += warn;
+        };
+        if let Some(warn) =
+            tickoff::check_tickoff_list_against_members(&loc, &tick_off)
+                .unwrap()
+        {
+            warnings += warn;
+        }
     }
 
+    println!("Accumulated {warnings} warnings");
     Ok(())
 }
