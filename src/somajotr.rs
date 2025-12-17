@@ -34,7 +34,8 @@ pub fn somajotr(
     let active_members = member::filter_active_members(members.clone());
 
     let _date = chrono::naive::NaiveDate::from_ymd_opt(2025, 11, 21).unwrap();
-    let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 8, 15).unwrap();
+    let _date = chrono::naive::NaiveDate::from_ymd_opt(2025, 8, 15).unwrap();
+    let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 12, 19).unwrap();
     let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
     println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
 
@@ -61,7 +62,9 @@ pub fn somajotr(
         jokers_small.len()
     );
     for location in Location::iter() {
-        println!("Analysis for: {location:?}");
+        println!("{}", "*".repeat(80));
+        println!("* Analysis for: {location:?}");
+        println!("{}", "*".repeat(80));
         let loc =
             member::filter_members_by_location(&active_members, &location);
         let mb = member::filter_members_by_big(&loc);
