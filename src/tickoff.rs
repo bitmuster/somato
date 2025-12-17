@@ -109,6 +109,7 @@ pub fn check_name_equality(
 }
 
 /// Checks if all members are mentioned in the tickoff list.
+/// If they are not this is an idication of a joker.
 /// Number of warnings is returned with an Option<usize>
 pub fn check_for_members_in_tickoff_list(
     members: &member::MemberList,
@@ -145,8 +146,11 @@ pub fn check_for_members_in_tickoff_list(
         }
         println!(
             "{}",
-            format!("    Cannot find member \"{}\" in tickoff list", member)
-                .color("red")
+            format!(
+                "    Cannot find member \"{}\" in tickoff list. Joker?",
+                member
+            )
+            .color("blue")
         );
         warnings = match warnings {
             Some(w) => Some(w + 1),
