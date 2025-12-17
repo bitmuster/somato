@@ -306,6 +306,7 @@ mod member_tests {
         let small = Data::Int(89);
         let location = Data::String("Perouse".to_string());
         let active = Data::String("aktiv".to_string());
+        let line = 99;
         let _ = Member::new(
             &contract_no,
             &member_no,
@@ -315,6 +316,7 @@ mod member_tests {
             &small,
             &location,
             &active,
+            line,
         );
     }
     #[test]
@@ -328,6 +330,7 @@ mod member_tests {
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
             &Data::String("aktiv".to_string()),
+            77,
         )
         .unwrap();
     }
@@ -342,6 +345,7 @@ mod member_tests {
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
             &Data::String("inaktiv".to_string()),
+            77,
         )
         .unwrap();
     }
@@ -356,6 +360,7 @@ mod member_tests {
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
             &Data::String("defect".to_string()),
+            77,
         );
         assert!(m.is_err(), "Failed to parse activity");
     }
@@ -370,6 +375,7 @@ mod member_tests {
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
             &Data::String("inaktiv".to_string()),
+            77,
         );
         assert!(m.is_err(), "Failed to parse contract number {:?}", m);
     }
@@ -384,6 +390,7 @@ mod member_tests {
             &Data::String("Fail".to_string()),
             &Data::String("Perouse".to_string()),
             &Data::String("inaktiv".to_string()),
+            77,
         );
         assert!(m.is_err(), "Failed to parse contract number {:?}", m);
     }
@@ -398,6 +405,7 @@ mod member_tests {
             &Data::Int(89),
             &Data::String("Perouse".to_string()),
             &Data::String("inaktiv".to_string()),
+            77,
         );
         assert!(m.is_err(), "Failed to parse contract number {:?}", m);
     }
@@ -412,6 +420,7 @@ mod member_tests {
             &Data::Int(89),
             &Data::String(" Perouse ".to_string()),
             &Data::String("inaktiv".to_string()),
+            77,
         );
         assert!(m.is_ok());
         let m = m.unwrap();
