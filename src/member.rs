@@ -16,6 +16,7 @@ pub struct Member {
     pub small: u32,
     pub location: Location,
     pub active: bool,
+    pub line: u32,
 }
 
 pub type MemberList = Vec<Member>;
@@ -30,6 +31,7 @@ impl Member {
         small: &Data,
         location: &Data,
         active: &Data,
+        line: u32,
     ) -> Result<Self> {
         // Its text not a number
         // let member_no = member_no.get_int().unwrap_or(8888) as u32;
@@ -53,11 +55,13 @@ impl Member {
         };
         let big = big
             .as_string()
-            .ok_or(anyhow!("Cannot parse value for big amount"))?
+            .ok_or(anyhow!("Cannot parse value for big amount in line {line}"))?
             .parse::<u32>()?;
         let small = small
             .as_string()
-            .ok_or(anyhow!("Cannot parse value for big amount"))?
+            .ok_or(anyhow!(
+                "Cannot parse value for small amount in line {line}"
+            ))?
             .parse::<u32>()?;
         let surname = surname
             .as_string()
@@ -78,6 +82,7 @@ impl Member {
             small: small,
             location: Location::parse(&location_str).unwrap(),
             active: active_bool,
+            line: 88,
         };
         // println!("{}", member);
         Ok(member)
@@ -103,6 +108,7 @@ impl Member {
             small,
             location,
             active,
+            line: 88,
         }
     }
 }
@@ -123,14 +129,15 @@ impl fmt::Display for Member {
 }
 
 pub fn read_members(members_file: &str) -> Result<Vec<Member>> {
+    let table_name = "Ernteverträge";
     let mut excel: Xlsx<_> = open_workbook(members_file).map_err(|e| {
         anyhow!(format!(
             "Error {e} whle loading members file {members_file}"
         ))
     })?;
-
+    let mut line = 2;
     let mut members = Vec::new();
-    if let Ok(r) = excel.worksheet_range("Ernteverträge") {
+    if let Ok(r) = excel.worksheet_range(table_name) {
         for row in r.rows().skip(1).take(251) {
             // println!("row={:?}, row[0]={:?}", row, row[0]);
             // println!(
@@ -159,10 +166,16 @@ pub fn read_members(members_file: &str) -> Result<Vec<Member>> {
                 small,
                 location,
                 active,
+                line,
             )?;
             members.push(member);
+            line += 1;
         }
     };
+    println!("Parsed members: {}", members.len());
+    if members.len() == 0 {
+        return Err(anyhow!("Found no members"));
+    }
     Ok(members)
 }
 
