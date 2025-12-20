@@ -9,15 +9,15 @@ env:
 
 jobs:
   check:
+    name: Run Clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Run-Clippy
       -  run: cargo clippy --all-targets --all-features
       -  run: cargo audit
 
   build_and_test:
-    name: Somato-latest
+    name: Somato All Toolchains
     runs-on: ubuntu-latest
     strategy:
       matrix:
