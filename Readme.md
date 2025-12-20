@@ -1,0 +1,19 @@
+
+
+Somato: The Solawi Management Tool
+==================================
+
+This project is a simple validator for some of the vegetable distribution
+mechanics for the Soawi Heckengäu ( https://solawiheckengaeu.de/ ).
+
+Before changing the current distribution mechanics we decided first to
+write a validator that checks the correctness of the validation procedures.
+
+Changing the mechanics became necessary as the current systems turned out
+to be very hard to maintain and to adopt to new use cases.
+Multiple layers of Excel power queries that spread multiple tables turned
+out to be hard to maintain and quality assurance almost impossible.
+
+Therefore, this project places high expectations into quality assurance and
+software testing.
+ 
