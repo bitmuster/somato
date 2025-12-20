@@ -186,8 +186,12 @@ pub fn check_member_list(members: &Vec<Member>) {
         if surname_set.insert(&member.surname) {
         } else {
             println!(
-                "  Duplicated surname: {} {} {}",
-                member.surname, member.contract_no, member.member_no
+                "{}",
+                format!(
+                    "  Duplicated surname: {} {} {}",
+                    member.surname, member.contract_no, member.member_no
+                )
+                .red()
             );
         }
     }
@@ -196,8 +200,15 @@ pub fn check_member_list(members: &Vec<Member>) {
         if member_no_set.insert(&member.member_no) {
         } else {
             println!(
-                "  Duplicated member number: {} {} {}",
-                member.surname, member.contract_no, member.member_no
+                "{}",
+                format!(
+                    "  Duplicated member number: {} {} {} {}",
+                    member.surname,
+                    member.forename,
+                    member.contract_no,
+                    member.member_no
+                )
+                .red()
             );
         }
     }

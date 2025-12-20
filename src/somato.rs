@@ -78,7 +78,9 @@ pub fn somato(
         if diff != 0 {
             println!(
                 "  {}",
-                format!("Difference in amount {}", diff).to_string().red()
+                format!("Difference in member/portion amount {}", diff)
+                    .to_string()
+                    .red()
             );
         }
         // member::print_members(&mb);
