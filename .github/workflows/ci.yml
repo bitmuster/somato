@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - uses: cargo-bins/cargo-binstall@main
       -  run: cargo clippy --all-targets --all-features
       -  run: cargo binstall cargo-audit
       -  run: cargo audit
@@ -22,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - uses: cargo-bins/cargo-binstall@main
       -  run: apt install tokei
       -  run: tokei
       -  run: cargo binstall cargo-tarpaulin
