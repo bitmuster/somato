@@ -2,7 +2,7 @@ use crate::joker;
 use crate::location::Location;
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
-use colorama::Colored;
+use colored::Colorize;
 use std::collections;
 use std::fmt;
 
@@ -211,7 +211,7 @@ pub fn check_member_list(members: &Vec<Member>) {
                     "  Duplicated contract number: {} {} {}",
                     member.surname, member.contract_no, member.member_no
                 )
-                .color("red")
+                .red()
             );
         }
     }
@@ -236,7 +236,7 @@ pub fn filter_jokers(
             {
                 println!(
                     "  Joker set: {} {} from {:?}",
-                    j.surname.to_string().color("blue"),
+                    j.surname.to_string().blue(),
                     j.forename,
                     m.location
                 );

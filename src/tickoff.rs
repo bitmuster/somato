@@ -147,7 +147,7 @@ pub fn check_for_members_in_tickoff_list(
                 "    Cannot find member \"{}\" in tickoff list. Joker?",
                 member
             )
-            .color("blue")
+            .blue()
         );
         warnings = match warnings {
             Some(w) => Some(w + 1),

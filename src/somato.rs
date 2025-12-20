@@ -4,7 +4,7 @@ use crate::joker;
 use crate::location::Location;
 use crate::member;
 use crate::tickoff;
-use colorama::Colored;
+use colored::Colorize;
 use strum::IntoEnumIterator;
 
 pub fn somato(
@@ -78,9 +78,7 @@ pub fn somato(
         if diff != 0 {
             println!(
                 "  {}",
-                format!("Difference in amount {}", diff)
-                    .to_string()
-                    .color("red")
+                format!("Difference in amount {}", diff).to_string().red()
             );
         }
         // member::print_members(&mb);
