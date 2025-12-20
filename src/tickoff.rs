@@ -4,7 +4,7 @@ use crate::member;
 use anyhow::{Result, anyhow};
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use chrono;
-use colorama::Colored;
+use colored::Colorize;
 use lazy_regex;
 use std::collections::HashSet;
 
@@ -61,10 +61,7 @@ pub fn check_name_with_initial(name: &str) -> bool {
     let re = lazy_regex::regex!(r"^[A-ZÄÖÜa-zäöü\- ]*, [[:alpha:]].$");
     let rematch = re.is_match(name);
     if !rematch {
-        println!(
-            "{}",
-            format!("    Malformed name \"{}\"", name).color("red")
-        );
+        println!("{}", format!("    Malformed name \"{}\"", name).red());
     };
     rematch
 }
@@ -197,7 +194,7 @@ pub fn check_tickoff_list_against_members(
         println!(
             "{}",
             format!("    Cannot find item \"{}\" in member list", tick.name)
-                .color("red")
+                .red()
         );
         warnings = match warnings {
             Some(w) => Some(w + 1),
@@ -298,14 +295,34 @@ pub fn tick_off_list(
         .sum();
     println!("  Parsed {sum_big} big amount");
     println!("  Parsed {sum_small} small amount");
-    assert_eq!(
-        sum_big, all_big,
-        "Amount for big in tickoff list does not match"
-    );
-    assert_eq!(
-        sum_small, all_small,
-        "Amount for small in tickoff list does not match"
-    );
+    // assert_eq!(
+    //     sum_big, all_big,
+    //     "Amount for big in tickoff list does not match"
+    // );
+    // assert_eq!(
+    //     sum_small, all_small,
+    //     "Amount for small in tickoff list does not match"
+    // );
+    if sum_big != all_big {
+        println!(
+            "{}",
+            format!(
+                "    Amount for big in tickoff list does not match {} vs. {}",
+                sum_big, all_big,
+            )
+            .red()
+        );
+    }
+    if sum_small != all_small {
+        println!(
+            "{}",
+            format!(
+                "    Amount for small in tickoff list does not match {} vs. {}",
+                sum_small, all_small,
+            )
+            .red()
+        );
+    }
     Ok(tick_off_list)
 }
 
