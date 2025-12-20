@@ -9,6 +9,7 @@ fn basic_load_synth() -> Result<(), anyhow::Error> {
     somato::somato(members_file, joker_file, tickoff_file)
 }
 
+#[ignore]
 #[test]
 fn basic_load_real() {
     let members_file = "/home/micha/Repos/SolawiKommisionierSpielplatz/\

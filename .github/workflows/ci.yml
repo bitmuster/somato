@@ -14,6 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       -  run: cargo clippy --all-targets --all-features
+      -  run: cargo install cargo-audit
       -  run: cargo audit
 
   build_and_test:
