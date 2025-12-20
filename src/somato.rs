@@ -7,7 +7,7 @@ use crate::tickoff;
 use colorama::Colored;
 use strum::IntoEnumIterator;
 
-pub fn somajotr(
+pub fn somato(
     members_file: &str,
     joker_file: &str,
     tickoff_file: &str,
