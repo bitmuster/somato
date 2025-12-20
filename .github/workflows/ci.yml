@@ -1,4 +1,4 @@
-name: Cargo Build & Test
+name: Somato Build & Test
 
 on:
   push:
@@ -6,6 +6,15 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features
+        run: cargo audit
 
 jobs:
   build_and_test:
