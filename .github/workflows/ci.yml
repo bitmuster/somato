@@ -14,8 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       -  run: cargo clippy --all-targets --all-features
-      -  run: cargo install cargo-audit
+      -  run: cargo binstall cargo-audit
       -  run: cargo audit
+
+  analysis:
+    name: Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      -  run: apt install tokei
+      -  run: tokei
+      -  run: cargo binstall cargo-tarpaulin
+      -  run: cargo tarpaulin
 
   build_and_test:
     name: Somato All Toolchains
