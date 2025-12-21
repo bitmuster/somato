@@ -184,7 +184,7 @@ mod test_somato {
 
     /// Issues
     /// 1) the injector is not cleaned up correctly
-    /// 2) creating a second injector fails as well
+    /// 2) creating a second injector seems to hang forever
     #[ignore]
     #[test]
     pub fn test_somato_main_fake() {
