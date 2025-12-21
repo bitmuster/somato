@@ -10,8 +10,10 @@ chrono = "0.4.42"
 colored = "3.0.0"
 lazy-regex = "3.4.2"
 regex = "1.12.2"
+serde = { version="1.0.228", features = ["derive"] }
 strum = { version = "0.27.2", features = ["derive"] }
 strum_macros = "0.27.2"
+toml = { version="0.9.10", features = ["serde", "parse"] }
 
 [dev-dependencies]
 injectorpp = "0.4.0"
