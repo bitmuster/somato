@@ -182,6 +182,10 @@ mod test_somato {
         assert!(result.is_ok());
     }
 
+    /// Issues
+    /// 1) the injector is not cleaned up correctly
+    /// 2) creating a second injector fails as well
+    #[ignore]
     #[test]
     pub fn test_somato_main_fake() {
         let mut injector = get_injector_ok(); // With the name it is not optimised away
@@ -207,8 +211,9 @@ mod test_somato {
         //     times: 1
         // ));
 
-        let mut injector_2 = InjectorPP::new();
-        injector_2
+        // let mut injector_2 = InjectorPP::new();
+        // injector_2
+        injector
             .when_called(
                 injectorpp::func!(fn (read_config)(&str) -> Result<Config>),
             )
