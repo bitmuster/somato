@@ -63,9 +63,10 @@ jobs:
 
       - name: Build Binary
         run: cargo build --verbose --locked --release --target $TARGET
-
+      - run: ls -lah target/$TARGET/
+      - run: ls -lah target/$TARGET/release ; echo true
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: <my-app>
+          name: somato
           path: target/$TARGET/release/somato.exe
