@@ -42,3 +42,27 @@ jobs:
       - run: cargo build --verbose
       - run: cargo test --verbose
   
+  build_for_windows:
+    name: Build for Windows
+    runs-on: ubuntu-latest
+    env:
+      TARGET: x86_64-pc-windows-msvc
+    steps:
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: $TARGET
+
+      - run: rustup --version
+      - name: Setup Cache
+        uses: Swatinem/rust-cache@v2
+
+      - run: cargo test --verbose --target $TARGET
+      - name: Build Binary
+        run: cargo build --verbose --locked --release --target $TARGET
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: <my-app>
+          path: target/$TARGET/somato.exe
