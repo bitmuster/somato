@@ -147,10 +147,10 @@ pub fn somato_runner(
 #[cfg(test)]
 mod test_somato {
     use super::*;
+    use core::any::Any;
     use injectorpp::interface::injector::*;
 
-    #[test]
-    pub fn test_somato_main() {
+    fn get_injector_ok() -> InjectorPP {
         let mut injector = InjectorPP::new();
         injector
             .when_called(injectorpp::func!(fn (somato_runner)(&str,&str,&str) -> Result<()>))
@@ -159,7 +159,14 @@ mod test_somato {
                 returns: Ok(()),
                 times: 2
             ));
+        return injector;
+    }
 
+    #[test]
+    pub fn test_somato_main() {
+        let _inj = get_injector_ok(); // With the name it is not optimised away
         assert!(somato_main().is_ok());
+        // make sure the injector guard is not optimised away
+        // println!("{:?}", inj.type_id());
     }
 }
