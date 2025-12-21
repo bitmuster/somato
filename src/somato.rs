@@ -15,31 +15,44 @@ use crate::member;
 use crate::tickoff;
 use anyhow::Result;
 use colored::Colorize;
+use serde::Deserialize;
+use std::fs;
 use std::path;
 use strum::IntoEnumIterator;
+use toml::value::Datetime;
+
+#[derive(Deserialize)]
+pub struct Config {
+    members: String,
+    jokers: String,
+    tickoff: String,
+    date: String,
+}
+
+/// Read and return the base config.
+/// Separated into a function with simpler interface.
+pub fn read_config(file: &str) -> Result<Config> {
+    let config: Config = toml::from_str(&fs::read_to_string(file)?)?;
+    Ok(config)
+}
 
 /// Main entry point for somato
 pub fn somato_main() -> Result<()> {
     println!("{}", "*".repeat(80));
-    let members_file = "tests/test_data/members_synthetic.xlsx";
-    let joker_file = "tests/test_data/jokers_synthetic.xlsx";
-    let tickoff_file = "tests/test_data/tickoff_synthetic.xlsx";
+    // let members_file = "tests/test_data/members_synthetic.xlsx";
+    // let joker_file = "tests/test_data/jokers_synthetic.xlsx";
+    // let tickoff_file = "tests/test_data/tickoff_synthetic.xlsx";
 
-    somato_runner(members_file, joker_file, tickoff_file)?;
+    // somato_runner(members_file, joker_file, tickoff_file)?;
 
-    println!("{}", "*".repeat(80));
-    let base_folder = path::Path::new(
-        "/home/micha/Repos/SolawiKommisionierSpielplatz/Daten_Stand_20251217",
-    );
-    let members_file = base_folder
-        .join("2023-12-17_Mitgliederliste-Solawi-Heckengaeu_v3_Test2.xlsx");
-    let joker_file = base_folder.join("Joker_Solawi-Heckengaeu.xlsx");
-    let tickoff_file = base_folder.join("2024-10-28_Abhaklisten.xlsx");
+    // let config: Config = toml::from_str(&fs::read_to_string("config.toml")?)?;
+    let config = read_config("config.toml")?;
 
     somato_runner(
-        members_file.to_str().unwrap(),
-        joker_file.to_str().unwrap(),
-        tickoff_file.to_str().unwrap(),
+        &config.members,
+        &config.jokers,
+        &config.tickoff,
+        &config.date,
     )?;
 
     println!("{}", "*".repeat(80));
@@ -51,6 +64,7 @@ pub fn somato_runner(
     members_file: &str,
     joker_file: &str,
     tickoff_file: &str,
+    date: &str,
 ) -> Result<()> {
     let members = member::read_members(&members_file)?;
     let jokers = joker::read_jokers(&joker_file)?;
@@ -73,8 +87,6 @@ pub fn somato_runner(
 
     let active_members = member::filter_active_members(members.clone());
 
-    let _date = chrono::naive::NaiveDate::from_ymd_opt(2025, 11, 21).unwrap();
-    let _date = chrono::naive::NaiveDate::from_ymd_opt(2025, 8, 15).unwrap();
     let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 12, 19).unwrap();
     let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
     println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
@@ -153,11 +165,11 @@ mod test_somato {
     fn get_injector_ok() -> InjectorPP {
         let mut injector = InjectorPP::new();
         injector
-            .when_called(injectorpp::func!(fn (somato_runner)(&str,&str,&str) -> Result<()>))
+            .when_called(injectorpp::func!(fn (somato_runner)(&str,&str,&str,&str) -> Result<()>))
             .will_execute(injectorpp::fake!(
-                func_type: fn(_a: &str,_b: &str,_c: &str) -> Result<()>,
+                func_type: fn(_a:&str,_b:&str,_c:&str,_d:&str) -> Result<()>,
                 returns: Ok(()),
-                times: 2
+                times: 1
             ));
         return injector;
     }
@@ -165,7 +177,55 @@ mod test_somato {
     #[test]
     pub fn test_somato_main() {
         let _inj = get_injector_ok(); // With the name it is not optimised away
-        assert!(somato_main().is_ok());
+        let result = somato_main();
+        println!("{:?}", result);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    pub fn test_somato_main_fake() {
+        let mut injector = get_injector_ok(); // With the name it is not optimised away
+
+        let _config: Config = toml::from_str(
+            r#"
+        members = "tests/test_data/members_synthetic.xlsx"
+        jokers = "tests/test_data/jokers_synthetic.xlsx"
+        tickoff = "tests/test_data/tickoff_synthetic.xlsx"
+        date = "2025-12-19"
+        "#,
+        )
+        .unwrap();
+
+        // For some reason complains about lifetimes
+        // injector
+        //     .when_called(
+        //         injectorpp::func!(fn (toml::from_str)(&str) -> std::result::Result<Config, toml::de::Error>),
+        //     );
+        // .will_execute(injectorpp::fake!(
+        //     func_type: fn(_a:&str) -> Result<Config>,
+        //     returns: ||{config},
+        //     times: 1
+        // ));
+
+        let mut injector_2 = InjectorPP::new();
+        injector_2
+            .when_called(
+                injectorpp::func!(fn (read_config)(&str) -> Result<Config>),
+            )
+            .will_execute(injectorpp::fake!(
+            func_type: fn(_a:&str) -> Result<Config>,
+            returns: Ok(Config{
+                members : "tests/test_data/members_synthetic.xlsx".to_string(),
+                jokers : "tests/test_data/jokers_synthetic.xlsx".to_string(),
+                tickoff : "tests/test_data/tickoff_synthetic.xlsx".to_string(),
+                date : "2025-12-19".to_string(),
+            }),
+            times: 1
+            ));
+
+        let result = somato_main();
+        println!("{:?}", result);
+        assert!(result.is_ok());
         // make sure the injector guard is not optimised away
         // println!("{:?}", inj.type_id());
     }
