@@ -78,4 +78,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: somato.exe
-          path: target/$TARGET/release/somato.exe
+          path: target/${{ vars.TARGET }}/release/somato.exe
