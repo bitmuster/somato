@@ -46,8 +46,10 @@ jobs:
     name: Build for Windows
     runs-on: ubuntu-latest
     env:
-      TARGET: x86_64-pc-windows-msvc
+      TARGET: x86_64-pc-windows-gnu
     steps:
+      - run: sudo apt update
+      - run: sudo apt install mingw-w64 -y
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
