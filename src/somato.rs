@@ -1,3 +1,14 @@
+/*
+
+https://github.com/tafia/calamine
+https://crates.io/crates/calamine
+https://docs.rs/calamine/latest/calamine/
+
+https://docs.rs/anyhow/latest/anyhow/
+https://docs.rs/injectorpp/latest/injectorpp/
+
+*/
+
 use crate::joker;
 use crate::location::Location;
 use crate::member;
@@ -7,6 +18,7 @@ use colored::Colorize;
 use std::path;
 use strum::IntoEnumIterator;
 
+/// Main entry point for somato
 pub fn somato_main() -> Result<()> {
     println!("{}", "*".repeat(80));
     let members_file = "tests/test_data/members_synthetic.xlsx";
@@ -33,6 +45,8 @@ pub fn somato_main() -> Result<()> {
     println!("{}", "*".repeat(80));
     Ok(())
 }
+
+/// Run analytics based on given configuration.
 pub fn somato_runner(
     members_file: &str,
     joker_file: &str,
@@ -128,4 +142,24 @@ pub fn somato_runner(
 
     println!("Accumulated {warnings} warnings");
     Ok(())
+}
+
+#[cfg(test)]
+mod test_somato {
+    use super::*;
+    use injectorpp::interface::injector::*;
+
+    #[test]
+    pub fn test_somato_main() {
+        let mut injector = InjectorPP::new();
+        injector
+            .when_called(injectorpp::func!(fn (somato_runner)(&str,&str,&str) -> Result<()>))
+            .will_execute(injectorpp::fake!(
+                func_type: fn(_a: &str,_b: &str,_c: &str) -> Result<()>,
+                returns: Ok(()),
+                times: 2
+            ));
+
+        assert!(somato_main().is_ok());
+    }
 }
