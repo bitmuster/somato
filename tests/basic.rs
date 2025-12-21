@@ -6,7 +6,7 @@ fn basic_load_synth() -> Result<(), anyhow::Error> {
     let joker_file = "tests/test_data/jokers_synthetic.xlsx";
     let tickoff_file = "tests/test_data/tickoff_synthetic.xlsx";
 
-    somato::somato(members_file, joker_file, tickoff_file)
+    somato::somato_runner(members_file, joker_file, tickoff_file)
 }
 
 #[ignore]
@@ -22,6 +22,6 @@ fn basic_load_real() {
         Daten_Stand_2025.11.27/\
         2024-10-28_Abhaklisten.xlsx";
 
-    let result = somato::somato(members_file, joker_file, tickoff_file);
+    let result = somato::somato_runner(members_file, joker_file, tickoff_file);
     assert!(result.is_ok());
 }

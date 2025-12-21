@@ -7,7 +7,7 @@ https://docs.rs/calamine/latest/calamine/
 */
 
 use anyhow::Result;
-use somato;
+use somato::somato;
 use std::path;
 
 fn main() -> Result<()> {
@@ -16,7 +16,7 @@ fn main() -> Result<()> {
     let joker_file = "tests/test_data/jokers_synthetic.xlsx";
     let tickoff_file = "tests/test_data/tickoff_synthetic.xlsx";
 
-    somato::somato::somato(members_file, joker_file, tickoff_file)?;
+    somato::somato_runner(members_file, joker_file, tickoff_file)?;
 
     println!("{}", "*".repeat(80));
     let base_folder = path::Path::new(
@@ -27,7 +27,7 @@ fn main() -> Result<()> {
     let joker_file = base_folder.join("Joker_Solawi-Heckengaeu.xlsx");
     let tickoff_file = base_folder.join("2024-10-28_Abhaklisten.xlsx");
 
-    somato::somato::somato(
+    somato::somato_runner(
         members_file.to_str().unwrap(),
         joker_file.to_str().unwrap(),
         tickoff_file.to_str().unwrap(),
