@@ -1,4 +1,5 @@
 use crate::somato::member;
+use ::somato::tickoff::get_amount_big;
 use anyhow::Result;
 use somato::Location;
 use somato::joker;
@@ -91,19 +92,21 @@ fn basic_read_tickoff_count_dense() -> Result<(), anyhow::Error> {
 }
 
 #[test]
-fn basic_read_tickoff_count_small() -> Result<(), anyhow::Error> {
+fn basic_read_tickoff_counts() -> Result<(), anyhow::Error> {
     let to_count = [
-        (Location::Perouse, 12),
-        (Location::Renningen, 10),
-        (Location::Gerlingen, 10),
-        (Location::Leonberg, 12),
-        (Location::WeilDerStadt, 11),
-        (Location::Neuhausen, 11),
+        (Location::Perouse, 7, 8),
+        (Location::Renningen, 6, 5),
+        (Location::Gerlingen, 5, 6),
+        (Location::Leonberg, 6, 9),
+        (Location::WeilDerStadt, 8, 5),
+        (Location::Neuhausen, 6, 5),
     ];
     let config = get_config_synth();
     for toi in to_count.iter() {
+        println!("{:?}", toi.0);
         let to = tickoff::tick_off_list(&config.tickoff, &toi.0)?;
-        assert_eq!(to.len(), toi.1);
+        assert_eq!(tickoff::get_amount_big(&to), toi.1, "big fail");
+        assert_eq!(tickoff::get_amount_small(&to), toi.2, "small fail");
     }
     Ok(())
 }

@@ -280,16 +280,8 @@ pub fn tick_off_list(
             // line += 1;
         }
     }
-    let all_big: u32 = tick_off_list
-        .iter()
-        .filter(|x| x.big > 0)
-        .map(|x| x.big)
-        .sum();
-    let all_small: u32 = tick_off_list
-        .iter()
-        .filter(|x| x.small > 0)
-        .map(|x| x.small)
-        .sum();
+    let all_big = get_amount_big(&tick_off_list);
+    let all_small = get_amount_small(&tick_off_list);
     println!("  Parsed {sum_big} big amount");
     println!("  Parsed {sum_small} small amount");
     // assert_eq!(
@@ -321,6 +313,22 @@ pub fn tick_off_list(
         );
     }
     Ok(tick_off_list)
+}
+
+pub fn get_amount_big(tick_off_list: &[TickOffItem]) -> u32 {
+    tick_off_list
+        .iter()
+        .filter(|x| x.big > 0)
+        .map(|x| x.big)
+        .sum::<u32>()
+}
+
+pub fn get_amount_small(tick_off_list: &[TickOffItem]) -> u32 {
+    tick_off_list
+        .iter()
+        .filter(|x| x.small > 0)
+        .map(|x| x.small)
+        .sum::<u32>()
 }
 
 #[cfg(test)]
@@ -356,13 +364,13 @@ mod tickoff_tests {
         };
         let b = TickOffItem {
             name: "Test, B.".to_string(),
-            big: 2,
+            big: 4,
             small: 3,
         };
         let c = TickOffItem {
             name: "Fail".to_string(),
             big: 2,
-            small: 3,
+            small: 4,
         };
         [a, a_small, b, c]
     }
@@ -389,6 +397,18 @@ mod tickoff_tests {
             false,
         );
         [m, n]
+    }
+
+    #[test]
+    fn test_get_big_amount() {
+        let toi = gen_toi();
+        assert_eq!(get_amount_big(&toi), 10);
+    }
+
+    #[test]
+    fn test_get_small_amount() {
+        let toi = gen_toi();
+        assert_eq!(get_amount_small(&toi), 13);
     }
 
     #[test]
