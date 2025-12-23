@@ -21,12 +21,12 @@ use std::path;
 use strum::IntoEnumIterator;
 use toml::value::Datetime;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq, Debug)]
 pub struct Config {
-    members: String,
-    jokers: String,
-    tickoff: String,
-    date: String,
+    pub members: String,
+    pub jokers: String,
+    pub tickoff: String,
+    pub date: String,
 }
 
 /// Read and return the base config.
@@ -39,35 +39,19 @@ pub fn read_config(file: &str) -> Result<Config> {
 /// Main entry point for somato
 pub fn somato_main() -> Result<()> {
     println!("{}", "*".repeat(80));
-    // let members_file = "tests/test_data/members_synthetic.xlsx";
-    // let joker_file = "tests/test_data/jokers_synthetic.xlsx";
-    // let tickoff_file = "tests/test_data/tickoff_synthetic.xlsx";
 
-    // somato_runner(members_file, joker_file, tickoff_file)?;
+    let config = read_config("config_synth.toml")?;
 
-    // let config: Config = toml::from_str(&fs::read_to_string("config.toml")?)?;
-    let config = read_config("config.toml")?;
-
-    somato_runner(
-        &config.members,
-        &config.jokers,
-        &config.tickoff,
-        &config.date,
-    )?;
+    somato_runner(&config)?;
 
     println!("{}", "*".repeat(80));
     Ok(())
 }
 
 /// Run analytics based on given configuration.
-pub fn somato_runner(
-    members_file: &str,
-    joker_file: &str,
-    tickoff_file: &str,
-    date: &str,
-) -> Result<()> {
-    let members = member::read_members(&members_file)?;
-    let jokers = joker::read_jokers(&joker_file)?;
+pub fn somato_runner(config: &Config) -> Result<()> {
+    let members = member::read_members(&config.members)?;
+    let jokers = joker::read_jokers(&config.jokers)?;
     let mut warnings = 0;
     println!("Some exemplary members:");
     for member in members.iter().take(5) {
@@ -138,7 +122,7 @@ pub fn somato_runner(
         // member::print_members(&mb);
         // member::print_members(&ms);
 
-        let tick_off = tickoff::tick_off_list(tickoff_file, &location)?;
+        let tick_off = tickoff::tick_off_list(&config.tickoff, &location)?;
         if let Some(warn) =
             tickoff::check_for_members_in_tickoff_list(&loc, &tick_off).unwrap()
         {
@@ -165,18 +149,41 @@ mod test_somato {
     fn get_injector_ok() -> InjectorPP {
         let mut injector = InjectorPP::new();
         injector
-            .when_called(injectorpp::func!(fn (somato_runner)(&str,&str,&str,&str) -> Result<()>))
+            .when_called(
+                injectorpp::func!(fn (somato_runner)(&Config) -> Result<()>),
+            )
             .will_execute(injectorpp::fake!(
-                func_type: fn(_a:&str,_b:&str,_c:&str,_d:&str) -> Result<()>,
+                func_type: fn(_c:&Config) -> Result<()>,
                 returns: Ok(()),
                 times: 1
             ));
         return injector;
     }
 
+    #[ignore]
+    #[test]
+    pub fn test_somato_main_indirect_injector() {
+        let _inj = get_injector_ok(); // With the name it is not optimised away
+        let result = somato_main();
+        println!("{:?}", result);
+        assert!(result.is_ok());
+    }
+
+    /// Next injectorpp issue. Reports: Fake function called more times than expected
+    /// Workaround:
+    /// cargo test -- --test-threads 1
     #[test]
     pub fn test_somato_main() {
-        let _inj = get_injector_ok(); // With the name it is not optimised away
+        let mut injector = InjectorPP::new();
+        injector
+            .when_called(
+                injectorpp::func!(fn (somato_runner)(&Config) -> Result<()>),
+            )
+            .will_execute(injectorpp::fake!(
+                func_type: fn(_c:&Config) -> Result<()>,
+                returns: Ok(()),
+                times: 1
+            ));
         let result = somato_main();
         println!("{:?}", result);
         assert!(result.is_ok());
@@ -233,5 +240,28 @@ mod test_somato {
         assert!(result.is_ok());
         // make sure the injector guard is not optimised away
         // println!("{:?}", inj.type_id());
+    }
+    #[test]
+    fn test_read_config() {
+        let config_expect = Config {
+            members: "tests/test_data/members_synthetic.xlsx".to_string(),
+            jokers: "tests/test_data/jokers_synthetic.xlsx".to_string(),
+            tickoff: "tests/test_data/tickoff_synthetic.xlsx".to_string(),
+            date: "2025-12-19".to_string(),
+        };
+        let config =
+            read_config("config_synth.toml").expect("Failed to parse config");
+        assert_eq!(config, config_expect);
+    }
+    #[test]
+    fn test_somato_runner() {
+        let config = Config {
+            members: "tests/test_data/members_synthetic.xlsx".to_string(),
+            jokers: "tests/test_data/jokers_synthetic.xlsx".to_string(),
+            tickoff: "tests/test_data/tickoff_synthetic.xlsx".to_string(),
+            date: "2025-12-19".to_string(),
+        };
+        let result = somato_runner(&config);
+        assert!(result.is_ok());
     }
 }
