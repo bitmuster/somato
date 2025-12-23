@@ -29,7 +29,7 @@ impl TickOffItem {
         // println!("Creating new entry with {:?} {:?} {:?}", name, big, small);
         let name = name
             .as_string()
-            .ok_or_else(|| return anyhow!("Cannot parse name \"{}\"", name));
+            .ok_or_else(|| anyhow!("Cannot parse name \"{}\"", name));
         // .unwrap_or(format!("Error while parsing \"{:?}\"", name));
         let big = match big {
             Some(i) => i.as_i64().unwrap_or(88) as u32,
@@ -71,11 +71,8 @@ pub fn check_name_with_initial(name: &str) -> bool {
 /// start with umlauts.
 pub fn split_name(name: &str) -> Option<(&str, &str)> {
     let re = lazy_regex::regex!(r"^([A-ZÄÖÜa-zäöü\- ]*), ([[:alpha:]]).$");
-    let Some((_, [surname, initial])) =
-        re.captures(name).map(|caps| caps.extract())
-    else {
-        return None;
-    };
+    let (_, [surname, initial]) =
+        re.captures(name).map(|caps| caps.extract())?;
 
     Some((surname, initial))
 }
@@ -95,12 +92,14 @@ pub fn check_name_equality(
     let Some((name, initial)) = split_name(name_with_initial) else {
         return false;
     };
-    if surname.to_lowercase() == name.to_lowercase() {
-        if forename.chars().next().unwrap().to_ascii_lowercase()
-            == initial.chars().next().unwrap().to_ascii_lowercase()
-        {
-            return true;
-        }
+    if surname.to_lowercase() == name.to_lowercase()
+        && forename
+            .chars()
+            .next()
+            .unwrap()
+            .eq_ignore_ascii_case(&initial.chars().next().unwrap())
+    {
+        return true;
     }
     false
 }
@@ -223,7 +222,7 @@ pub fn tick_off_list(
         Location::Perouse => 0,
         _ => 1,
     };
-    let mut sum_big: u32 = 0;
+    let sum_big: u32 = 0;
     let mut sum_small: u32 = 0;
     if let Ok(r) = excel.worksheet_range(location.to_short()) {
         for row in r.rows().skip(7).take(100) {
@@ -253,9 +252,8 @@ pub fn tick_off_list(
             if let Ok(item) = item_big {
                 tick_off_list.push(item);
             } else {
-                match amount_big.as_i64() {
-                    Some(x) => sum_big = x as u32,
-                    None => {}
+                if let Some(s) = amount_big.as_i64() {
+                    sum_small = s as u32
                 };
                 // println!("Error while parsing big: {item_big:?}");
                 big_done = true;
@@ -263,9 +261,8 @@ pub fn tick_off_list(
             if let Ok(item) = item_small {
                 tick_off_list.push(item);
             } else {
-                match amount_small.as_i64() {
-                    Some(x) => sum_small = x as u32,
-                    None => {}
+                if let Some(s) = amount_small.as_i64() {
+                    sum_small = s as u32
                 };
                 // println!("Error while parsing small: {item_small:?}");
                 small_done = true;

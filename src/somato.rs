@@ -17,9 +17,7 @@ use anyhow::Result;
 use colored::Colorize;
 use serde::Deserialize;
 use std::fs;
-use std::path;
 use strum::IntoEnumIterator;
-use toml::value::Datetime;
 
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct Config {
@@ -143,7 +141,6 @@ pub fn somato_runner(config: &Config) -> Result<()> {
 #[cfg(test)]
 mod test_somato {
     use super::*;
-    use core::any::Any;
     use injectorpp::interface::injector::*;
 
     fn get_injector_ok() -> InjectorPP {

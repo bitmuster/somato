@@ -76,10 +76,10 @@ impl Member {
         let member = Member {
             contract_no: contract_no.as_string().unwrap(),
             member_no,
-            surname: surname,
-            forename: forename,
-            big: big,
-            small: small,
+            surname,
+            forename,
+            big,
+            small,
             location: Location::parse(&location_str).unwrap(),
             active: active_bool,
             line: 88,
@@ -145,7 +145,7 @@ pub fn read_members(members_file: &str) -> Result<Vec<Member>> {
             //     row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]
             // );
 
-            if (0..3).map(|x| row[x].is_empty()).any(|x| x == true) {
+            if (0..3).any(|x| row[x].is_empty()) {
                 // println!("Continuing");
                 continue;
             };
@@ -173,13 +173,13 @@ pub fn read_members(members_file: &str) -> Result<Vec<Member>> {
         }
     };
     println!("Parsed members: {}", members.len());
-    if members.len() == 0 {
+    if members.is_empty() {
         return Err(anyhow!("Found no members"));
     }
     Ok(members)
 }
 
-pub fn check_member_list(members: &Vec<Member>) {
+pub fn check_member_list(members: &[Member]) {
     println!("Checking member list");
     let mut surname_set = collections::HashSet::new();
     for member in members.iter() {

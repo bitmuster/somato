@@ -39,7 +39,7 @@ impl Joker {
             _ => {
                 return Err(anyhow!(
                     "Cannot parse date \"{}\" on line {}",
-                    date.to_string(),
+                    date,
                     line
                 ));
             }
@@ -47,7 +47,7 @@ impl Joker {
         let location_str =
             location.as_string().unwrap_or("Error NA".to_string());
         let location_str = location_str.trim();
-        let location = Location::parse(&location_str)?;
+        let location = Location::parse(location_str)?;
 
         // This can be Error(NA) when the contract is inactive
         match forename {
@@ -81,15 +81,15 @@ impl Joker {
 
         let joker = Self {
             date: ndate,
-            surname: surname,
-            forename: forename,
+            surname,
+            forename,
             warning: warning.as_i64().expect("Cannot parse warning") as u32,
-            location: location,
+            location,
             // big: big.as_i64().expect("Cannot parse big") as u32,
             // small: small.as_i64().expect("Cannot parse small") as u32,
             big: big.as_i64().unwrap_or(88) as u32,
             small: small.as_i64().unwrap_or(88) as u32,
-            line: line,
+            line,
         };
         // println!("{}", joker);
         Ok(joker)
@@ -112,7 +112,7 @@ impl fmt::Display for Joker {
     }
 }
 
-pub fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
+pub fn check_joker_list(members: &[Member], jokers: &[Joker]) {
     println!("Checking Joker List");
     let mut joker_warnings = 0;
     let warn_limit = 5;
@@ -124,11 +124,10 @@ pub fn check_joker_list(members: &Vec<Member>, jokers: &Vec<Joker>) {
                 // println!("Found {}", j.surname);
                 continue 'outer;
             }
-            if j.surname.to_lowercase() == m.surname.to_lowercase() {
-                if m.active == false {
-                    // println!("  Ignoring inactive entry {}", j.surname);
-                    continue 'outer;
-                }
+            if j.surname.to_lowercase() == m.surname.to_lowercase() && !m.active
+            {
+                // println!("  Ignoring inactive entry {}", j.surname);
+                continue 'outer;
             }
         }
         if joker_warnings < warn_limit {
@@ -175,7 +174,7 @@ pub fn read_jokers(joker_file: &str) -> Result<Vec<Joker>> {
             let big = &row[5];
             let small = &row[6];
             let joker = Joker::new(
-                &date, &name, &forename, warning, &location, big, small, line,
+                date, name, forename, warning, location, big, small, line,
             )?;
             jokers.push(joker);
             line += 1;
