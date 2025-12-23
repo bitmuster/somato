@@ -185,11 +185,14 @@ pub fn read_jokers(joker_file: &str) -> Result<Vec<Joker>> {
 }
 
 pub fn filter_jokers_by_date(
-    jokers: JokerList,
-    date: chrono::NaiveDate,
+    jokers: &[Joker],
+    date: &chrono::NaiveDate,
 ) -> JokerList {
-    let result: JokerList =
-        jokers.into_iter().filter(|j| j.date == date).collect();
+    let result: JokerList = jokers
+        .to_owned()
+        .into_iter()
+        .filter(|j| j.date == *date)
+        .collect();
     println!("  Filtered {} jokers at {}", result.len(), date);
     result
 }

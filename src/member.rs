@@ -237,8 +237,8 @@ pub fn filter_active_members(members: MemberList) -> MemberList {
 }
 
 pub fn filter_jokers(
-    members: &MemberList,
-    jokers: &joker::JokerList,
+    members: &[Member],
+    jokers: &[joker::Joker],
 ) -> MemberList {
     let mut result: MemberList = Vec::new();
 

@@ -69,6 +69,39 @@ pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
         .ok_or(anyhow!("Cannot process date"));
     date
 }
+
+pub fn analyze_jokers(
+    active_members: &[member::Member],
+    jokers: &[joker::Joker],
+    date: &naive::NaiveDate,
+) {
+    let weekly_jokers = joker::filter_jokers_by_date(jokers, date);
+    println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
+
+    for location in Location::iter() {
+        let weekly_jokers_loc =
+            joker::filter_jokers_by_location(weekly_jokers.clone(), &location);
+
+        println!(
+            "    Weekly jokers {} at {} in {:?}",
+            weekly_jokers_loc.len(),
+            date,
+            &location
+        );
+    }
+
+    let active_collectors =
+        member::filter_jokers(active_members, &weekly_jokers);
+    let jokers_big = member::filter_members_by_big(&active_collectors);
+    let jokers_small = member::filter_members_by_small(&active_collectors);
+    println!(
+        "Active collectors: all {}, big: {}, small: {}",
+        active_members.len(),
+        jokers_big.len(),
+        jokers_small.len()
+    );
+}
+
 /// Run analytics based on given configuration.
 pub fn somato_runner(config: &Config) -> Result<()> {
     let members = member::read_members(&config.members)?;
@@ -92,31 +125,8 @@ pub fn somato_runner(config: &Config) -> Result<()> {
 
     let active_members = member::filter_active_members(members.clone());
     let date = parse_date(&config.date)?;
-    let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
-    println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
+    analyze_jokers(&active_members, &jokers, &date);
 
-    for location in Location::iter() {
-        let weekly_jokers_loc =
-            joker::filter_jokers_by_location(weekly_jokers.clone(), &location);
-
-        println!(
-            "    Weekly jokers {} at {} in {:?}",
-            weekly_jokers_loc.len(),
-            date,
-            &location
-        );
-    }
-
-    let active_collectors =
-        member::filter_jokers(&active_members, &weekly_jokers);
-    let jokers_big = member::filter_members_by_big(&active_collectors);
-    let jokers_small = member::filter_members_by_small(&active_collectors);
-    println!(
-        "Active collectors: all {}, big: {}, small: {}",
-        active_members.len(),
-        jokers_big.len(),
-        jokers_small.len()
-    );
     for location in Location::iter() {
         println!("{}", "*".repeat(80));
         println!("* Analysis for: {location:?}");
