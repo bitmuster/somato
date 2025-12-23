@@ -15,6 +15,7 @@ pub use crate::member;
 pub use crate::tickoff;
 use anyhow::Result;
 use anyhow::anyhow;
+use chrono::naive;
 use colored::Colorize;
 use serde::Deserialize;
 use std::fs;
@@ -46,7 +47,28 @@ pub fn somato_main() -> Result<()> {
     println!("{}", "*".repeat(80));
     Ok(())
 }
+pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
+    let mut date_split = date.split("-");
+    let year = date_split
+        .next()
+        .ok_or(anyhow!("Cannot parse year"))?
+        .parse::<i32>()?;
+    let month = date_split
+        .next()
+        .ok_or(anyhow!("Cannot parse month"))?
+        .parse::<u32>()?;
+    let day = date_split
+        .next()
+        .ok_or(anyhow!("Cannot parse day"))?
+        .parse::<u32>()?;
+    if !date_split.next().is_none() {
+        return Err(anyhow!("Found extra tokens in date"));
+    }
 
+    let date = chrono::naive::NaiveDate::from_ymd_opt(year, month, day)
+        .ok_or(anyhow!("Cannot process date"));
+    date
+}
 /// Run analytics based on given configuration.
 pub fn somato_runner(config: &Config) -> Result<()> {
     let members = member::read_members(&config.members)?;
@@ -69,23 +91,7 @@ pub fn somato_runner(config: &Config) -> Result<()> {
     joker::check_joker_list(&members, &jokers);
 
     let active_members = member::filter_active_members(members.clone());
-    let mut date_split = config.date.split("-");
-    let year = date_split
-        .next()
-        .ok_or(anyhow!("Cannot parse year"))?
-        .parse::<i32>()?;
-    let month = date_split
-        .next()
-        .ok_or(anyhow!("Cannot parse month"))?
-        .parse::<u32>()?;
-    let day = date_split
-        .next()
-        .ok_or(anyhow!("Cannot parse day"))?
-        .parse::<u32>()?;
-    assert_eq!(date_split.next(), None);
-
-    let date =
-        chrono::naive::NaiveDate::from_ymd_opt(year, month, day).unwrap();
+    let date = parse_date(&config.date)?;
     let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
     println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
 
@@ -260,7 +266,7 @@ mod test_somato {
             members: "tests/test_data/members_synthetic.xlsx".to_string(),
             jokers: "tests/test_data/jokers_synthetic.xlsx".to_string(),
             tickoff: "tests/test_data/tickoff_synthetic.xlsx".to_string(),
-            date: "2025-12-19".to_string(),
+            date: "2025-11-07".to_string(),
         };
         let config =
             read_config("config_synth.toml").expect("Failed to parse config");
@@ -272,9 +278,37 @@ mod test_somato {
             members: "tests/test_data/members_synthetic.xlsx".to_string(),
             jokers: "tests/test_data/jokers_synthetic.xlsx".to_string(),
             tickoff: "tests/test_data/tickoff_synthetic.xlsx".to_string(),
-            date: "2025-12-19".to_string(),
+            date: "2025-12-07".to_string(),
         };
         let result = somato_runner(&config);
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_date() {
+        assert_eq!(
+            parse_date("2025-11-07").unwrap(),
+            naive::NaiveDate::from_ymd_opt(2025, 11, 7).unwrap()
+        );
+    }
+
+    #[test]
+    fn test_parse_date_2() -> Result<(), anyhow::Error> {
+        assert_eq!(
+            parse_date("2025-11-07")?,
+            naive::NaiveDate::from_ymd_opt(2025, 11, 7)
+                .ok_or(anyhow!("Fail"))?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_date_fail() {
+        assert!(parse_date("2025-1107").is_err());
+        assert!(parse_date("202511-07").is_err());
+        assert!(parse_date("2025-11-07-99").is_err());
+        assert!(parse_date("20251107").is_err());
+        assert!(parse_date("what").is_err());
+        assert!(parse_date("0000-00-00").is_err());
     }
 }
