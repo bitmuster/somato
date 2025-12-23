@@ -16,6 +16,7 @@ pub use crate::test_common;
 pub use crate::tickoff;
 use anyhow::Result;
 use anyhow::anyhow;
+use chrono::Datelike;
 use chrono::naive;
 use colored::Colorize;
 use serde::Deserialize;
@@ -67,8 +68,12 @@ pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
     }
 
     let date = chrono::naive::NaiveDate::from_ymd_opt(year, month, day)
-        .ok_or(anyhow!("Cannot process date"));
-    date
+        .ok_or(anyhow!("Cannot process date"))?;
+    println!("Parsed Date {:?} {}", date, date.weekday());
+    if date.weekday() != chrono::Weekday::Fri {
+        return Err(anyhow!("Distribution should be on Fridays"));
+    }
+    Ok(date)
 }
 
 /// Analyses the current state of Jokers
@@ -290,7 +295,7 @@ mod test_somato {
             members: "tests/test_data/members_synthetic.xlsx".to_string(),
             jokers: "tests/test_data/jokers_synthetic.xlsx".to_string(),
             tickoff: "tests/test_data/tickoff_synthetic.xlsx".to_string(),
-            date: "2025-12-07".to_string(),
+            date: "2025-11-07".to_string(),
         };
         let result = somato_runner(&config);
         assert!(result.is_ok());
