@@ -21,7 +21,7 @@ pub struct TickOffItem {
 }
 
 impl TickOffItem {
-    pub fn new(
+    pub fn try_new(
         name: &Data,
         big: Option<&Data>,
         small: Option<&Data>,
@@ -205,6 +205,7 @@ pub fn check_tickoff_list_against_members(
 
 pub type TickOffList = Vec<TickOffItem>;
 
+/// Parse tickoff list from filename and location
 pub fn tick_off_list(
     tickoff_file: &str,
     location: &Location,
@@ -222,7 +223,7 @@ pub fn tick_off_list(
         Location::Perouse => 0,
         _ => 1,
     };
-    let sum_big: u32 = 0;
+    let mut sum_big: u32 = 0;
     let mut sum_small: u32 = 0;
     if let Ok(r) = excel.worksheet_range(location.to_short()) {
         for row in r.rows().skip(7).take(100) {
@@ -245,19 +246,25 @@ pub fn tick_off_list(
 
             let name_small = &row[4 + offset];
             let amount_small = &row[5 + offset];
-            let item_big = TickOffItem::new(name_big, Some(amount_big), None);
-            let item_small =
-                TickOffItem::new(name_small, None, Some(amount_small));
 
+            // Try to parse_items
+            let item_big =
+                TickOffItem::try_new(name_big, Some(amount_big), None);
+            let item_small =
+                TickOffItem::try_new(name_small, None, Some(amount_small));
+
+            // Check if we reached the end of the list
             if let Ok(item) = item_big {
                 tick_off_list.push(item);
             } else {
                 if let Some(s) = amount_big.as_i64() {
-                    sum_small = s as u32
+                    sum_big = s as u32
                 };
                 // println!("Error while parsing big: {item_big:?}");
                 big_done = true;
             }
+
+            // Check if we reached the end of the list
             if let Ok(item) = item_small {
                 tick_off_list.push(item);
             } else {
@@ -267,6 +274,7 @@ pub fn tick_off_list(
                 // println!("Error while parsing small: {item_small:?}");
                 small_done = true;
             }
+
             if big_done && small_done {
                 // println!("Items exhausted");
                 // println!("Parsed {amount_big:?} big amount");
@@ -339,7 +347,7 @@ mod tickoff_tests {
 
     #[test]
     fn test_new() {
-        let _ = TickOffItem::new(
+        let _ = TickOffItem::try_new(
             &Data::String("Test".to_string()),
             Some(&Data::Int(5)),
             Some(&Data::Int(6)),
