@@ -14,6 +14,7 @@ pub use crate::location::Location;
 pub use crate::member;
 pub use crate::tickoff;
 use anyhow::Result;
+use anyhow::anyhow;
 use colored::Colorize;
 use serde::Deserialize;
 use std::fs;
@@ -68,8 +69,23 @@ pub fn somato_runner(config: &Config) -> Result<()> {
     joker::check_joker_list(&members, &jokers);
 
     let active_members = member::filter_active_members(members.clone());
+    let mut date_split = config.date.split("-");
+    let year = date_split
+        .next()
+        .ok_or(anyhow!("Cannot parse year"))?
+        .parse::<i32>()?;
+    let month = date_split
+        .next()
+        .ok_or(anyhow!("Cannot parse month"))?
+        .parse::<u32>()?;
+    let day = date_split
+        .next()
+        .ok_or(anyhow!("Cannot parse day"))?
+        .parse::<u32>()?;
+    assert_eq!(date_split.next(), None);
 
-    let date = chrono::naive::NaiveDate::from_ymd_opt(2025, 12, 19).unwrap();
+    let date =
+        chrono::naive::NaiveDate::from_ymd_opt(year, month, day).unwrap();
     let weekly_jokers = joker::filter_jokers_by_date(jokers.clone(), date);
     println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
 
