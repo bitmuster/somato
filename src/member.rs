@@ -22,6 +22,7 @@ pub struct Member {
 pub type MemberList = Vec<Member>;
 
 impl Member {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         contract_no: &Data,
         member_no: &Data,
@@ -89,6 +90,7 @@ impl Member {
     }
 
     #[allow(unused)]
+    #[allow(clippy::too_many_arguments)]
     pub fn new_from_values(
         contract_no: &str,
         member_no: u32,

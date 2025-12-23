@@ -21,6 +21,7 @@ pub struct Joker {
 pub type JokerList = Vec<Joker>;
 
 impl Joker {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         date: &Data,
         surname: &Data,
