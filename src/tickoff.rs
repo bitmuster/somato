@@ -343,7 +343,7 @@ pub fn get_amount_small(tick_off_list: &[TickOffItem]) -> u32 {
 mod tickoff_tests {
 
     use super::*;
-    use crate::member::Member;
+    use crate::test_common::test_common::*;
 
     #[test]
     fn test_new() {
@@ -359,70 +359,22 @@ mod tickoff_tests {
         };
     }
 
-    fn gen_toi() -> [TickOffItem; 4] {
-        let a = TickOffItem {
-            name: "Test, A.".to_string(),
-            big: 2,
-            small: 3,
-        };
-        let a_small = TickOffItem {
-            name: "test, a.".to_string(),
-            big: 2,
-            small: 3,
-        };
-        let b = TickOffItem {
-            name: "Test, B.".to_string(),
-            big: 4,
-            small: 3,
-        };
-        let c = TickOffItem {
-            name: "Fail".to_string(),
-            big: 2,
-            small: 4,
-        };
-        [a, a_small, b, c]
-    }
-
-    fn gen_members() -> [Member; 2] {
-        let m = Member::new_from_values(
-            "EV-1",
-            1,
-            "Test",
-            "Alice",
-            1,
-            1,
-            Location::Perouse,
-            false,
-        );
-        let n = Member::new_from_values(
-            "EV-2",
-            1,
-            "Test",
-            "Bob",
-            1,
-            1,
-            Location::Perouse,
-            false,
-        );
-        [m, n]
-    }
-
     #[test]
     fn test_get_big_amount() {
-        let toi = gen_toi();
-        assert_eq!(get_amount_big(&toi), 10);
+        let toi = gen_toi_ok();
+        assert_eq!(get_amount_big(&toi), 5);
     }
 
     #[test]
     fn test_get_small_amount() {
-        let toi = gen_toi();
-        assert_eq!(get_amount_small(&toi), 13);
+        let toi = gen_toi_ok();
+        assert_eq!(get_amount_small(&toi), 5);
     }
 
     #[test]
     fn test_check_for_members_in_tickoff_list() {
-        let [a, a_small, b, c] = gen_toi();
-        let [m, n] = gen_members();
+        let [a, a_small, b, c] = gen_toi_fail();
+        let [m, n, _o] = gen_members();
 
         let r = check_for_members_in_tickoff_list(
             &vec![m.clone(), n.clone()],
@@ -478,8 +430,8 @@ mod tickoff_tests {
     }
     #[test]
     fn test_check_tickoff_list_against_members() {
-        let [a, _a_small, b, _c] = gen_toi();
-        let [m, n] = gen_members();
+        let [a, _a_small, b, _c] = gen_toi_fail();
+        let [m, n, _c] = gen_members();
 
         let r = check_tickoff_list_against_members(
             &vec![m.clone(), n.clone()],

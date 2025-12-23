@@ -12,6 +12,7 @@ https://docs.rs/injectorpp/latest/injectorpp/
 pub use crate::joker;
 pub use crate::location::Location;
 pub use crate::member;
+pub use crate::test_common;
 pub use crate::tickoff;
 use anyhow::Result;
 use anyhow::anyhow;
@@ -70,11 +71,13 @@ pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
     date
 }
 
+/// Analyses the current state of Jokers
+/// Returns the amount of active collectors, collectors for big and small.
 pub fn analyze_jokers(
     active_members: &[member::Member],
     jokers: &[joker::Joker],
-    date: &naive::NaiveDate,
-) {
+    date: &chrono::NaiveDate,
+) -> (usize, usize, usize) {
     let weekly_jokers = joker::filter_jokers_by_date(jokers, date);
     println!("Weekly jokers {} at {}", weekly_jokers.len(), date);
 
@@ -92,14 +95,20 @@ pub fn analyze_jokers(
 
     let active_collectors =
         member::filter_jokers(active_members, &weekly_jokers);
-    let jokers_big = member::filter_members_by_big(&active_collectors);
-    let jokers_small = member::filter_members_by_small(&active_collectors);
+    let members_jokers_big = member::filter_members_by_big(&active_collectors);
+    let members_jokers_small =
+        member::filter_members_by_small(&active_collectors);
     println!(
         "Active collectors: all {}, big: {}, small: {}",
-        active_members.len(),
-        jokers_big.len(),
-        jokers_small.len()
+        active_collectors.len(),
+        members_jokers_big.len(),
+        members_jokers_small.len()
     );
+    (
+        active_collectors.len(),
+        members_jokers_big.len(),
+        members_jokers_small.len(),
+    )
 }
 
 /// Run analytics based on given configuration.
@@ -107,15 +116,6 @@ pub fn somato_runner(config: &Config) -> Result<()> {
     let members = member::read_members(&config.members)?;
     let jokers = joker::read_jokers(&config.jokers)?;
     let mut warnings = 0;
-    println!("Some exemplary members:");
-    for member in members.iter().take(5) {
-        println!("    {}", member);
-    }
-
-    println!("Some exemplary jokers:");
-    for joker in jokers.iter().take(5) {
-        println!("    {}", joker);
-    }
 
     println!("  Parsed {} members", members.len());
     println!("  Parsed {} jokers", jokers.len());
@@ -172,6 +172,8 @@ pub fn somato_runner(config: &Config) -> Result<()> {
 
 #[cfg(test)]
 mod test_somato {
+    use crate::test_common::test_common::*;
+
     use super::*;
     use injectorpp::interface::injector::*;
 
@@ -320,5 +322,16 @@ mod test_somato {
         assert!(parse_date("20251107").is_err());
         assert!(parse_date("what").is_err());
         assert!(parse_date("0000-00-00").is_err());
+    }
+
+    #[test]
+    fn test_analyze_jokers() {
+        let date = naive::NaiveDate::from_ymd_opt(2025, 11, 7).unwrap();
+        let members = gen_members();
+        let jokers = gen_jokers();
+        let (m, b, s) = analyze_jokers(&members, &jokers, &date);
+        assert_eq!(m, 3);
+        assert_eq!(b, 2);
+        assert_eq!(s, 2);
     }
 }
