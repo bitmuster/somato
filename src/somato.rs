@@ -9,10 +9,10 @@ https://docs.rs/injectorpp/latest/injectorpp/
 
 */
 
-use crate::joker;
-use crate::location::Location;
-use crate::member;
-use crate::tickoff;
+pub use crate::joker;
+pub use crate::location::Location;
+pub use crate::member;
+pub use crate::tickoff;
 use anyhow::Result;
 use colored::Colorize;
 use serde::Deserialize;
