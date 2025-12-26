@@ -153,6 +153,9 @@ pub fn check_joker_sizes(members: &[Member], jokers: &[Joker]) -> Result<u32> {
     // them again.
     'outer: for j in jokers.iter() {
         for m in members.iter() {
+            if !m.active {
+                continue;
+            }
             if j.surname.to_lowercase() == m.surname.to_lowercase()
                 && j.forename.to_lowercase() == m.forename.to_lowercase()
             {
@@ -442,5 +445,20 @@ mod joker_tests {
         let result = check_joker_sizes(&members, &jokers);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 6);
+    }
+    #[test]
+    fn test_check_joker_sizes_all_set_and_fail_inactive() {
+        let mut members = test_common::gen_members();
+        let mut jokers = vec![
+            test_common::gen_joker_a(),
+            test_common::gen_joker_b(),
+            test_common::gen_joker_c(),
+        ];
+        jokers[0].big = 7;
+        jokers[0].small = 7;
+        members[0].active = false;
+        let result = check_joker_sizes(&members, &jokers);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 0);
     }
 }

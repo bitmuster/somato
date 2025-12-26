@@ -58,7 +58,7 @@ pub mod test_common {
             2,
             0,
             Location::Perouse,
-            false,
+            true,
         );
         let b = Member::new_from_values(
             "EV-2",
@@ -68,7 +68,7 @@ pub mod test_common {
             0,
             2,
             Location::Perouse,
-            false,
+            true,
         );
         let c = Member::new_from_values(
             "EV-3",
@@ -78,7 +78,7 @@ pub mod test_common {
             3,
             3,
             Location::Perouse,
-            false,
+            true,
         );
         [a, b, c]
     }

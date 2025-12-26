@@ -175,6 +175,11 @@ pub fn check_tickoff_list_against_members(
         for member in members.iter() {
             // println!("Checking member {member}");
 
+            // Ignore inactive members
+            if !member.active {
+                continue;
+            }
+
             if !check_name_with_initial(&tick.name) {
                 warnings = match warnings {
                     Some(w) => Some(w + 1),
@@ -463,6 +468,7 @@ mod tickoff_tests {
         // );
         // assert!(r.is_err());
     }
+
     #[test]
     fn test_check_tickoff_list_against_members() {
         let [a, _a_small, b, _c] = gen_toi_fail();
@@ -488,6 +494,17 @@ mod tickoff_tests {
         );
         assert!(r.is_ok(), "Two missing");
         assert_eq!(r.unwrap(), Some(2));
+
+        // inactive
+        let mut x = m.clone();
+        x.big = 77;
+        x.active = false;
+        let r = check_tickoff_list_against_members(
+            &vec![m.clone(), x, n.clone()],
+            &vec![a.clone(), b.clone()],
+        );
+        assert!(r.is_ok(), "Base test");
+        assert_eq!(r.unwrap(), None);
     }
 
     #[test]
