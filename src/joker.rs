@@ -115,7 +115,7 @@ impl fmt::Display for Joker {
 
 pub fn check_joker_names(members: &[Member], jokers: &[Joker]) -> Result<u32> {
     let mut joker_warnings = 0;
-    let warn_limit = 5;
+    let warn_limit = 10;
     'outer: for j in jokers.iter() {
         for m in members.iter() {
             if j.surname.to_lowercase() == m.surname.to_lowercase()
@@ -408,7 +408,7 @@ mod joker_tests {
     #[test]
     fn test_check_joker_sizes_all_set() {
         let members = test_common::gen_members();
-        let mut jokers = vec![
+        let jokers = vec![
             test_common::gen_joker_a(),
             test_common::gen_joker_b(),
             test_common::gen_joker_c(),
