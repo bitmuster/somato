@@ -53,7 +53,7 @@ pub fn get_config_file() -> Result<String> {
     Ok(inputfile)
 }
 
-/// Main entry point for somato
+/// Main entry point for somato.
 pub fn somato_main() -> Result<()> {
     println!("{}", "*".repeat(80));
 
@@ -66,6 +66,7 @@ pub fn somato_main() -> Result<()> {
     Ok(())
 }
 
+// Parse date given in config file.
 pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
     let mut date_split = date.split("-");
     let year = date_split
@@ -93,7 +94,7 @@ pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
     Ok(date)
 }
 
-/// Analyses the current state of Jokers
+/// Analyses the current state of Jokers.
 /// Returns the amount of active collectors, collectors for big and small.
 pub fn analyze_jokers(
     active_members: &[member::Member],
@@ -143,7 +144,7 @@ pub fn somato_runner(config: &Config) -> Result<()> {
     println!("  Parsed {} jokers", jokers.len());
 
     member::check_member_list(&members);
-    joker::check_joker_list(&members, &jokers);
+    joker::check_joker_list(&members, &jokers)?;
 
     let active_members = member::filter_active_members(members.clone());
     let date = parse_date(&config.date)?;
@@ -197,7 +198,6 @@ mod test_somato {
     use super::*;
     use crate::test_common::test_common::*;
     use injectorpp::interface::injector::*;
-    use std::ffi;
 
     // #[ignore] // Fails randomly, when run in multiple threads
     #[test]

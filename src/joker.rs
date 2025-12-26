@@ -113,7 +113,7 @@ impl fmt::Display for Joker {
     }
 }
 
-pub fn check_joker_list(members: &[Member], jokers: &[Joker]) {
+pub fn check_joker_list(members: &[Member], jokers: &[Joker]) -> Result<u32> {
     println!("Checking Joker List");
     let mut joker_warnings = 0;
     let warn_limit = 5;
@@ -148,6 +148,7 @@ pub fn check_joker_list(members: &[Member], jokers: &[Joker]) {
         "{}",
         format!("  Overall Joker warnings {}", joker_warnings).red()
     );
+    Ok(joker_warnings)
 }
 
 pub fn read_jokers(joker_file: &str) -> Result<Vec<Joker>> {
@@ -213,6 +214,7 @@ pub fn filter_jokers_by_location(
 mod joker_tests {
 
     use super::*;
+    use crate::test_common::test_common;
 
     #[test]
     fn test_new_wrong_date() {
@@ -292,5 +294,35 @@ mod joker_tests {
         assert_eq!(j.big, 80);
         assert_eq!(j.small, 81);
         assert_eq!(j.line, 88);
+    }
+
+    #[test]
+    fn test_check_joker_list() {
+        let members = test_common::gen_members();
+        let jokers = test_common::gen_jokers();
+
+        let result = check_joker_list(&members, &jokers);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 0);
+    }
+
+    #[test]
+    fn test_check_joker_list_extra_joker() {
+        let members = test_common::gen_members();
+        let mut jokers = test_common::gen_jokers().to_vec();
+        let j = Joker {
+            date: NaiveDate::from_ymd_opt(1, 1, 1).unwrap(),
+            surname: "Nobody".to_string(),
+            forename: "Nono".to_string(),
+            warning: 0,
+            location: Location::Perouse,
+            big: 0,
+            small: 2,
+            line: 88,
+        };
+        jokers.push(j);
+        let result = check_joker_list(&members, &jokers);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 1);
     }
 }
