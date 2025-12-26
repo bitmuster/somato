@@ -1,0 +1,5 @@
+[alias]
+# Make sure we run just one thread otherwise the mocks might override themselves
+testsingle = "test -- --test-threads=1"
+
+
