@@ -182,7 +182,9 @@ mod test_somato {
     use super::*;
     use injectorpp::interface::injector::*;
 
-    fn get_injector_ok() -> InjectorPP {
+    #[ignore] // Fails randomly, when run in multiple threads
+    #[test]
+    pub fn test_somato_main() {
         let mut injector = InjectorPP::new();
         injector
             .when_called(
@@ -193,24 +195,14 @@ mod test_somato {
                 returns: Ok(()),
                 times: 1
             ));
-        return injector;
-    }
-
-    #[ignore]
-    #[test]
-    pub fn test_somato_main_indirect_injector() {
-        let _inj = get_injector_ok(); // With the name it is not optimised away
         let result = somato_main();
         println!("{:?}", result);
         assert!(result.is_ok());
     }
 
-    /// Next injectorpp issue. Reports: Fake function called more times than expected
-    /// Workaround:
-    /// cargo test -- --test-threads 1
-    #[ignore]
+    #[ignore] // Fails randomly, when run in multiple threads
     #[test]
-    pub fn test_somato_main() {
+    pub fn test_somato_main_2() {
         let mut injector = InjectorPP::new();
         injector
             .when_called(
@@ -229,10 +221,19 @@ mod test_somato {
     /// Issues
     /// 1) the injector is not cleaned up correctly
     /// 2) creating a second injector seems to hang forever
-    #[ignore]
+    #[ignore] // Cannot work that way
     #[test]
     pub fn test_somato_main_fake() {
-        let mut injector = get_injector_ok(); // With the name it is not optimised away
+        let mut injector = InjectorPP::new();
+        injector
+            .when_called(
+                injectorpp::func!(fn (somato_runner)(&Config) -> Result<()>),
+            )
+            .will_execute(injectorpp::fake!(
+                func_type: fn(_c:&Config) -> Result<()>,
+                returns: Ok(()),
+                times: 1
+            ));
 
         let _config: Config = toml::from_str(
             r#"
@@ -244,18 +245,6 @@ mod test_somato {
         )
         .unwrap();
 
-        // For some reason complains about lifetimes
-        // injector
-        //     .when_called(
-        //         injectorpp::func!(fn (toml::from_str)(&str) -> std::result::Result<Config, toml::de::Error>),
-        //     );
-        // .will_execute(injectorpp::fake!(
-        //     func_type: fn(_a:&str) -> Result<Config>,
-        //     returns: ||{config},
-        //     times: 1
-        // ));
-
-        // let mut injector_2 = InjectorPP::new();
         // injector_2
         injector
             .when_called(
