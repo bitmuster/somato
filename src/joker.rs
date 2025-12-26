@@ -146,11 +146,44 @@ pub fn check_joker_names(members: &[Member], jokers: &[Joker]) -> Result<u32> {
     Ok(joker_warnings)
 }
 
+pub fn check_joker_sizes(members: &[Member], jokers: &[Joker]) -> Result<u32> {
+    let mut joker_warnings = 0;
+    // let warn_limit = 5;
+    // not absolutely elegant as we found them earlier and now we are searching
+    // them again.
+    'outer: for j in jokers.iter() {
+        for m in members.iter() {
+            if j.surname.to_lowercase() == m.surname.to_lowercase()
+                && j.forename.to_lowercase() == m.forename.to_lowercase()
+            {
+                // println!("Found {}", j.surname);
+                if j.big != m.big {
+                    println!(
+                        "Joker size for big {} does not match: {} {}",
+                        m.surname, m.big, m.small
+                    );
+                    joker_warnings += 1;
+                }
+                if j.small != m.small {
+                    println!(
+                        "Joker size for small {} does not match: {} {}",
+                        m.surname, m.big, m.small
+                    );
+                    joker_warnings += 1;
+                }
+                continue 'outer;
+            }
+        }
+    }
+    Ok(joker_warnings)
+}
+
 pub fn check_joker_list(members: &[Member], jokers: &[Joker]) -> Result<u32> {
     println!("Checking Joker List");
     let mut joker_warnings = 0;
-    let warn_limit = 5;
+    // let warn_limit = 5;
     joker_warnings += check_joker_names(members, jokers)?;
+    joker_warnings += check_joker_sizes(members, jokers)?;
     println!(
         "{}",
         format!("  Overall Joker warnings {}", joker_warnings).red()
@@ -307,7 +340,7 @@ mod joker_tests {
     #[test]
     fn test_check_joker_list() {
         let members = test_common::gen_members();
-        let jokers = test_common::gen_jokers();
+        let jokers = vec![test_common::gen_joker_a()];
 
         let result = check_joker_list(&members, &jokers);
         assert!(result.is_ok());
@@ -317,7 +350,7 @@ mod joker_tests {
     #[test]
     fn test_check_joker_list_fail() {
         let members = test_common::gen_members();
-        let jokers = test_common::gen_jokers();
+        let jokers = vec![test_common::gen_joker_a()];
         let mut injector = InjectorPP::new();
         injector
             .when_called(
@@ -325,19 +358,28 @@ mod joker_tests {
             )
             .will_execute(injectorpp::fake!(
                 func_type: fn(_m:&[Member], _j:&[Joker]) -> Result<u32>,
-                returns: Ok(22),
+                returns: Ok(9),
+                times: 1
+            ));
+        injector
+            .when_called(
+                injectorpp::func!(fn (check_joker_sizes)( &[Member], &[Joker]) -> Result<u32>),
+            )
+            .will_execute(injectorpp::fake!(
+                func_type: fn(_m:&[Member], _j:&[Joker]) -> Result<u32>,
+                returns: Ok(7),
                 times: 1
             ));
 
         let result = check_joker_list(&members, &jokers);
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 22);
+        assert_eq!(result.unwrap(), 16);
     }
 
     #[test]
     fn test_check_joker_names_extra_joker() {
         let members = test_common::gen_members();
-        let mut jokers = test_common::gen_jokers().to_vec();
+        let mut jokers = vec![test_common::gen_joker_a()];
         let j = Joker {
             date: NaiveDate::from_ymd_opt(1, 1, 1).unwrap(),
             surname: "Nobody".to_string(),
@@ -352,5 +394,45 @@ mod joker_tests {
         let result = check_joker_names(&members, &jokers);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 1);
+    }
+
+    #[test]
+    fn test_check_joker_sizes() {
+        let members = test_common::gen_members();
+        let jokers = vec![test_common::gen_joker_a()];
+        let result = check_joker_sizes(&members, &jokers);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 0);
+    }
+
+    #[test]
+    fn test_check_joker_sizes_all_set() {
+        let members = test_common::gen_members();
+        let mut jokers = vec![
+            test_common::gen_joker_a(),
+            test_common::gen_joker_b(),
+            test_common::gen_joker_c(),
+        ];
+        let result = check_joker_sizes(&members, &jokers);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 0);
+    }
+    #[test]
+    fn test_check_joker_sizes_all_set_and_fail() {
+        let members = test_common::gen_members();
+        let mut jokers = vec![
+            test_common::gen_joker_a(),
+            test_common::gen_joker_b(),
+            test_common::gen_joker_c(),
+        ];
+        jokers[0].big = 7;
+        jokers[0].small = 7;
+        jokers[1].big = 7;
+        jokers[1].small = 7;
+        jokers[2].big = 7;
+        jokers[2].small = 7;
+        let result = check_joker_sizes(&members, &jokers);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 6);
     }
 }

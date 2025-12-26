@@ -75,15 +75,28 @@ pub mod test_common {
             3,
             "Testeress",
             "Cloe",
-            2,
-            2,
+            3,
+            3,
             Location::Perouse,
             false,
         );
         [a, b, c]
     }
 
-    pub fn gen_jokers() -> [Joker; 1] {
+    pub fn gen_joker_a() -> Joker {
+        let j = Joker {
+            date: NaiveDate::from_ymd_opt(1, 1, 1).unwrap(),
+            surname: "Testerin".to_string(),
+            forename: "Alice".to_string(),
+            warning: 0,
+            location: Location::Perouse,
+            big: 2,
+            small: 0,
+            line: 88,
+        };
+        j
+    }
+    pub fn gen_joker_b() -> Joker {
         let j = Joker {
             date: NaiveDate::from_ymd_opt(1, 1, 1).unwrap(),
             surname: "Tester".to_string(),
@@ -94,6 +107,19 @@ pub mod test_common {
             small: 2,
             line: 88,
         };
-        [j]
+        j
+    }
+    pub fn gen_joker_c() -> Joker {
+        let j = Joker {
+            date: NaiveDate::from_ymd_opt(1, 1, 1).unwrap(),
+            surname: "Testeress".to_string(),
+            forename: "Cloe".to_string(),
+            warning: 0,
+            location: Location::Perouse,
+            big: 3,
+            small: 3,
+            line: 88,
+        };
+        j
     }
 }

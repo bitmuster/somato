@@ -363,7 +363,7 @@ mod test_somato {
     fn test_analyze_jokers() {
         let date = naive::NaiveDate::from_ymd_opt(2025, 11, 7).unwrap();
         let members = gen_members();
-        let jokers = gen_jokers();
+        let jokers = vec![gen_joker_b()];
         let (m, b, s) = analyze_jokers(&members, &jokers, &date);
         assert_eq!(m, 3);
         assert_eq!(b, 2);
