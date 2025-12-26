@@ -20,6 +20,7 @@ use chrono::Datelike;
 use chrono::naive;
 use colored::Colorize;
 use serde::Deserialize;
+use std::env;
 use std::fs;
 use strum::IntoEnumIterator;
 
@@ -38,17 +39,33 @@ pub fn read_config(file: &str) -> Result<Config> {
     Ok(config)
 }
 
+/// Return the location of the configuration file.
+/// Separated into function with simpler interface.
+pub fn get_config_file() -> Result<String> {
+    let arg = env::args().collect::<Vec<String>>();
+    let inputfile = if arg.len() == 1 {
+        "config_synth.toml".to_string()
+    } else if arg.len() == 2 {
+        arg.get(1).unwrap().to_owned()
+    } else {
+        return Err(anyhow!("Wrong amount of command line parameters"));
+    };
+    Ok(inputfile)
+}
+
 /// Main entry point for somato
 pub fn somato_main() -> Result<()> {
     println!("{}", "*".repeat(80));
 
-    let config = read_config("config_synth.toml")?;
+    let inputfile = get_config_file()?;
+    let config = read_config(&inputfile)?;
 
     somato_runner(&config)?;
 
     println!("{}", "*".repeat(80));
     Ok(())
 }
+
 pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
     let mut date_split = date.split("-");
     let year = date_split
@@ -177,10 +194,10 @@ pub fn somato_runner(config: &Config) -> Result<()> {
 
 #[cfg(test)]
 mod test_somato {
-    use crate::test_common::test_common::*;
-
     use super::*;
+    use crate::test_common::test_common::*;
     use injectorpp::interface::injector::*;
+    use std::ffi;
 
     // #[ignore] // Fails randomly, when run in multiple threads
     #[test]
@@ -195,12 +212,35 @@ mod test_somato {
                 returns: Ok(()),
                 times: 1
             ));
+        injector
+            .when_called(
+                injectorpp::func!(fn (read_config)(&str) -> Result<Config>),
+            )
+            .will_execute(injectorpp::fake!(
+                func_type: fn(_c:&str) -> Result<Config>,
+            returns: Ok(Config{
+                members : "tests/test_data/members_synthetic.xlsx".to_string(),
+                jokers : "tests/test_data/jokers_synthetic.xlsx".to_string(),
+                tickoff : "tests/test_data/tickoff_synthetic.xlsx".to_string(),
+                date : "2025-12-19".to_string(),
+            }),
+                times: 1
+            ));
+        injector
+            .when_called(
+                injectorpp::func!(fn (get_config_file)() -> Result<String>),
+            )
+            .will_execute(injectorpp::fake!(
+                func_type: fn() -> Result<String>,
+                returns: Ok("some_file".to_string()),
+                times: 1
+            ));
         let result = somato_main();
         println!("{:?}", result);
         assert!(result.is_ok());
     }
 
-    // #[ignore] // Fails randomly, when run in multiple threads
+    #[ignore] // Fails randomly, when run in multiple threads
     #[test]
     pub fn test_somato_main_2() {
         let mut injector = InjectorPP::new();
