@@ -113,8 +113,7 @@ impl fmt::Display for Joker {
     }
 }
 
-pub fn check_joker_list(members: &[Member], jokers: &[Joker]) -> Result<u32> {
-    println!("Checking Joker List");
+pub fn check_joker_names(members: &[Member], jokers: &[Joker]) -> Result<u32> {
     let mut joker_warnings = 0;
     let warn_limit = 5;
     'outer: for j in jokers.iter() {
@@ -144,6 +143,14 @@ pub fn check_joker_list(members: &[Member], jokers: &[Joker]) -> Result<u32> {
 
         joker_warnings += 1;
     }
+    Ok(joker_warnings)
+}
+
+pub fn check_joker_list(members: &[Member], jokers: &[Joker]) -> Result<u32> {
+    println!("Checking Joker List");
+    let mut joker_warnings = 0;
+    let warn_limit = 5;
+    joker_warnings += check_joker_names(members, jokers)?;
     println!(
         "{}",
         format!("  Overall Joker warnings {}", joker_warnings).red()
@@ -215,6 +222,7 @@ mod joker_tests {
 
     use super::*;
     use crate::test_common::test_common;
+    use injectorpp::interface::injector::*;
 
     #[test]
     fn test_new_wrong_date() {
@@ -307,7 +315,27 @@ mod joker_tests {
     }
 
     #[test]
-    fn test_check_joker_list_extra_joker() {
+    fn test_check_joker_list_fail() {
+        let members = test_common::gen_members();
+        let jokers = test_common::gen_jokers();
+        let mut injector = InjectorPP::new();
+        injector
+            .when_called(
+                injectorpp::func!(fn (check_joker_names)( &[Member], &[Joker]) -> Result<u32>),
+            )
+            .will_execute(injectorpp::fake!(
+                func_type: fn(_m:&[Member], _j:&[Joker]) -> Result<u32>,
+                returns: Ok(22),
+                times: 1
+            ));
+
+        let result = check_joker_list(&members, &jokers);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 22);
+    }
+
+    #[test]
+    fn test_check_joker_names_extra_joker() {
         let members = test_common::gen_members();
         let mut jokers = test_common::gen_jokers().to_vec();
         let j = Joker {
@@ -321,7 +349,7 @@ mod joker_tests {
             line: 88,
         };
         jokers.push(j);
-        let result = check_joker_list(&members, &jokers);
+        let result = check_joker_names(&members, &jokers);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 1);
     }
