@@ -134,7 +134,7 @@ pub fn check_joker_names(members: &[Member], jokers: &[Joker]) -> Result<u32> {
             println!(
                 "{}",
                 format!(
-                    "  Cannot find Joker line {} in member list name: \"{}\" forename: \"{}\"",
+                    "    Cannot find Joker line {} in member list name: \"{}\" forename: \"{}\"",
                     j.line, j.surname, j.forename
                 )
                 .red()
@@ -161,8 +161,8 @@ pub fn check_joker_sizes(members: &[Member], jokers: &[Joker]) -> Result<u32> {
                     println!(
                         "{}",
                         format!(
-                            "Joker size for big {} does not match: {} {}",
-                            m.surname, m.big, j.big
+                            "    Joker size for big {} does not match with member list: {} {} line {}",
+                            m.surname, j.big, m.big, j.line
                         )
                         .red()
                     );
@@ -172,8 +172,8 @@ pub fn check_joker_sizes(members: &[Member], jokers: &[Joker]) -> Result<u32> {
                     println!(
                         "{}",
                         format!(
-                            "Joker size for small {} does not match: {} {}",
-                            m.surname, m.small, j.small
+                            "    Joker size for small {} does not match with member list: {} {} line {}",
+                            m.surname, j.small, m.small, j.line
                         )
                         .red()
                     );
