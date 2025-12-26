@@ -29,17 +29,17 @@ pub mod test_common {
         let a = TickOffItem {
             name: "Testerin, A.".to_string(),
             big: 2,
-            small: 3,
+            small: 0,
         };
         let a_small = TickOffItem {
             name: "testerin, a.".to_string(),
             big: 2,
-            small: 3,
+            small: 0,
         };
         let b = TickOffItem {
             name: "Tester, B.".to_string(),
-            big: 4,
-            small: 3,
+            big: 0,
+            small: 2,
         };
         let c = TickOffItem {
             name: "Fail".to_string(),

@@ -21,6 +21,7 @@ pub struct TickOffItem {
 }
 
 impl TickOffItem {
+    /// Try to generate a new Tick Off Item from parsed data.
     pub fn try_new(
         name: &Data,
         big: Option<&Data>,
@@ -77,10 +78,10 @@ pub fn split_name(name: &str) -> Option<(&str, &str)> {
     Some((surname, initial))
 }
 
-/// Check names given as surename, forename for equality with the initial.
+/// Check names given as surname, forename for equality with the initial.
 /// E.g. "Surname, N."
 /// Warning this check is not exhaustive as there could be multiple forenames
-/// with that begin with the same character.
+/// that begin with the same character.
 pub fn check_name_equality(
     surname: &str,
     forename: &str,
@@ -179,6 +180,7 @@ pub fn check_tickoff_list_against_members(
                     Some(w) => Some(w + 1),
                     None => Some(1),
                 };
+                // Name is malformed - skip furhter analysis
                 continue;
             }
             if check_name_equality(
@@ -187,6 +189,36 @@ pub fn check_tickoff_list_against_members(
                 &tick.name,
             ) {
                 // println!("Found {}", member.surname);
+                if member.big != tick.big {
+                    warnings = match warnings {
+                        Some(w) => Some(w + 1),
+                        None => Some(1),
+                    };
+                    println!(
+                        "{}",
+                        format!(
+                            "    Tickoff size for big {} does not match: {} {}",
+                            member.surname, member.big, tick.big
+                        )
+                        .red()
+                    );
+                    // warnings += 1;
+                }
+                if member.small != tick.small {
+                    warnings = match warnings {
+                        Some(w) => Some(w + 1),
+                        None => Some(1),
+                    };
+                    println!(
+                        "{}",
+                        format!(
+                            "    Tickoff size for small {} does not match: {} {}",
+                            member.surname, member.big, tick.small
+                        )
+                        .red()
+                    );
+                    // warnings += 1;
+                }
                 continue 'outer;
             }
         }
@@ -203,6 +235,7 @@ pub fn check_tickoff_list_against_members(
     Ok(warnings)
 }
 
+/// Container type for the TickOffList
 pub type TickOffList = Vec<TickOffItem>;
 
 /// Parse tickoff list from filename and location
@@ -323,6 +356,7 @@ pub fn tick_off_list(
     Ok(tick_off_list)
 }
 
+/// Helper function to get the amout of big collectors
 pub fn get_amount_big(tick_off_list: &[TickOffItem]) -> u32 {
     tick_off_list
         .iter()
@@ -331,6 +365,7 @@ pub fn get_amount_big(tick_off_list: &[TickOffItem]) -> u32 {
         .sum::<u32>()
 }
 
+/// Helper function to get the amout of big collectors
 pub fn get_amount_small(tick_off_list: &[TickOffItem]) -> u32 {
     tick_off_list
         .iter()
@@ -453,6 +488,30 @@ mod tickoff_tests {
         );
         assert!(r.is_ok(), "Two missing");
         assert_eq!(r.unwrap(), Some(2));
+    }
+
+    #[test]
+    fn test_check_tickoff_list_wrong_size() {
+        let [mut a, mut b, _c] = gen_toi_ok();
+        let [m, n, _c] = gen_members();
+        a.big = 999;
+        let r = check_tickoff_list_against_members(
+            &vec![m.clone(), n.clone()],
+            &vec![a.clone(), b.clone()],
+        );
+        assert!(r.is_ok(), "Base test");
+        assert_eq!(r.unwrap(), Some(1));
+
+        a.big = 99;
+        a.small = 32;
+        b.big = 42;
+        b.small = 11;
+        let r = check_tickoff_list_against_members(
+            &vec![m.clone(), n.clone()],
+            &vec![a.clone(), b.clone()],
+        );
+        assert!(r.is_ok(), "Base test");
+        assert_eq!(r.unwrap(), Some(4));
     }
 
     #[test]

@@ -159,15 +159,23 @@ pub fn check_joker_sizes(members: &[Member], jokers: &[Joker]) -> Result<u32> {
                 // println!("Found {}", j.surname);
                 if j.big != m.big {
                     println!(
-                        "Joker size for big {} does not match: {} {}",
-                        m.surname, m.big, m.small
+                        "{}",
+                        format!(
+                            "Joker size for big {} does not match: {} {}",
+                            m.surname, m.big, j.big
+                        )
+                        .red()
                     );
                     joker_warnings += 1;
                 }
                 if j.small != m.small {
                     println!(
-                        "Joker size for small {} does not match: {} {}",
-                        m.surname, m.big, m.small
+                        "{}",
+                        format!(
+                            "Joker size for small {} does not match: {} {}",
+                            m.surname, m.small, j.small
+                        )
+                        .red()
                     );
                     joker_warnings += 1;
                 }
