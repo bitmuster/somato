@@ -182,7 +182,7 @@ mod test_somato {
     use super::*;
     use injectorpp::interface::injector::*;
 
-    #[ignore] // Fails randomly, when run in multiple threads
+    // #[ignore] // Fails randomly, when run in multiple threads
     #[test]
     pub fn test_somato_main() {
         let mut injector = InjectorPP::new();
@@ -200,7 +200,7 @@ mod test_somato {
         assert!(result.is_ok());
     }
 
-    #[ignore] // Fails randomly, when run in multiple threads
+    // #[ignore] // Fails randomly, when run in multiple threads
     #[test]
     pub fn test_somato_main_2() {
         let mut injector = InjectorPP::new();
