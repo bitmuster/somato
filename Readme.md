@@ -16,4 +16,13 @@ out to be hard to maintain and quality assurance almost impossible.
 
 Therefore, this project places high expectations into quality assurance and
 software testing.
- 
+
+
+Testing
+=======
+
+This project uses injectorpp to facilitate run-time mocks.
+There seems to be a race condition between mocks when tests run in multiple
+threads. As workaround, we run the tests in one thread:
+
+    cargo test -- --test-threads=1
