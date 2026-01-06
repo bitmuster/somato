@@ -8,6 +8,7 @@ anyhow = "1.0.100"
 calamine = { version="0.31.0", features = ["chrono"]}
 chrono = "0.4.42"
 colored = "3.0.0"
+enable-ansi-support = "0.3.1"
 lazy-regex = "3.4.2"
 regex = "1.12.2"
 serde = { version="1.0.228", features = ["derive"] }

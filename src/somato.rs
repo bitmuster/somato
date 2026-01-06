@@ -55,6 +55,7 @@ pub fn get_config_file() -> Result<String> {
 
 /// Main entry point for somato.
 pub fn somato_main() -> Result<()> {
+    let _ = enable_ansi_support::enable_ansi_support();
     println!("{}", "*".repeat(80));
 
     let inputfile = get_config_file()?;
