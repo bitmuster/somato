@@ -384,6 +384,22 @@ pub fn get_amount_small(tick_off_list: &[TickOffItem]) -> u32 {
         .sum::<u32>()
 }
 
+/// Deduplicate the Tickoff list.
+/// Summarise items where necessary.
+pub fn deduplicate(list: &[TickOffItem]) -> Vec<TickOffItem> {
+    let mut result: Vec<TickOffItem> = Vec::new();
+    for element in list {
+        match result.iter().position(|x| x.name == element.name) {
+            Some(x) => {
+                result[x].big += element.big;
+                result[x].small += element.small;
+            }
+            None => result.push(element.clone()),
+        }
+    }
+    result
+}
+
 #[cfg(test)]
 mod tickoff_tests {
 
@@ -573,5 +589,24 @@ mod tickoff_tests {
         assert!(!check_name_equality("Smith", "John", "Smith"));
         assert!(!check_name_equality("Smith", "Bob", "Smith, J."));
         assert!(!check_name_equality("Smith", "Bob", "Smith J."));
+    }
+    #[test]
+    fn test_deduplicate_a() {
+        let mut toi = gen_toi_ok();
+        let toid = deduplicate(&mut toi);
+        assert_eq!(toid.len(), toi.len());
+    }
+    #[test]
+    fn test_deduplicate_b() {
+        let mut toi = gen_toi_duplication();
+        let toid = deduplicate(&mut toi);
+        assert_eq!(toi.len(), 3);
+        assert_eq!(toid.len(), 2);
+        // Expect that elem 1 and 3 were combined
+        assert_eq!(toid.get(0).unwrap().big, 2);
+        assert_eq!(toid.get(0).unwrap().small, 3);
+        // Expect elem 2 is untouched
+        assert_eq!(toid.get(1).unwrap().big, 0);
+        assert_eq!(toid.get(1).unwrap().small, 2);
     }
 }

@@ -25,6 +25,25 @@ pub mod test_common {
         [a, b, c]
     }
 
+    pub fn gen_toi_duplication() -> [TickOffItem; 3] {
+        let a = TickOffItem {
+            name: "Testerin, A.".to_string(),
+            big: 2,
+            small: 0,
+        };
+        let b = TickOffItem {
+            name: "Tester, B.".to_string(),
+            big: 0,
+            small: 2,
+        };
+        let c = TickOffItem {
+            name: "Testerin, A.".to_string(),
+            big: 0,
+            small: 3,
+        };
+        [a, b, c]
+    }
+
     pub fn gen_toi_fail() -> [TickOffItem; 4] {
         let a = TickOffItem {
             name: "Testerin, A.".to_string(),
