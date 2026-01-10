@@ -1,6 +1,6 @@
 
 
-![CI-Github](https://github.com/bitmuster/somato/actions/workflows/ci.yml/badge.svg)ö
+![CI-Github](https://github.com/bitmuster/somato/actions/workflows/ci.yml/badge.svg)
 
 Somato: The Solawi Management Tool
 ==================================
