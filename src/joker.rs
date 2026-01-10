@@ -137,7 +137,7 @@ pub fn check_joker_names(members: &[Member], jokers: &[Joker]) -> Result<u32> {
                     "    Cannot find Joker line {} in member list name: \"{}\" forename: \"{}\"",
                     j.line, j.surname, j.forename
                 )
-                .red()
+                .bright_red()
             );
         }
 
@@ -167,7 +167,7 @@ pub fn check_joker_sizes(members: &[Member], jokers: &[Joker]) -> Result<u32> {
                             "    Joker size for big {} does not match with member list: {} {} line {}",
                             m.surname, j.big, m.big, j.line
                         )
-                        .red()
+                        .bright_red()
                     );
                     joker_warnings += 1;
                 }
@@ -178,7 +178,7 @@ pub fn check_joker_sizes(members: &[Member], jokers: &[Joker]) -> Result<u32> {
                             "    Joker size for small {} does not match with member list: {} {} line {}",
                             m.surname, j.small, m.small, j.line
                         )
-                        .red()
+                        .bright_red()
                     );
                     joker_warnings += 1;
                 }
@@ -197,7 +197,7 @@ pub fn check_joker_list(members: &[Member], jokers: &[Joker]) -> Result<u32> {
     joker_warnings += check_joker_sizes(members, jokers)?;
     println!(
         "{}",
-        format!("  Overall Joker warnings {}", joker_warnings).red()
+        format!("  Overall Joker warnings {}", joker_warnings).bright_red()
     );
     Ok(joker_warnings)
 }

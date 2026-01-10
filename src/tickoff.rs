@@ -62,7 +62,7 @@ pub fn check_name_with_initial(name: &str) -> bool {
     let re = lazy_regex::regex!(r"^[A-ZÄÖÜa-zäöü\- ]*, [[:alpha:]].$");
     let rematch = re.is_match(name);
     if !rematch {
-        println!("{}", format!("    Malformed name \"{}\"", name).red());
+        println!("{}", format!("    Malformed name \"{}\"", name).bright_red());
     };
     rematch
 }
@@ -147,7 +147,7 @@ pub fn check_for_members_in_tickoff_list(
                 "    Cannot find member \"{}\" in tickoff list. Joker?",
                 member
             )
-            .blue()
+            .bright_blue()
         );
         warnings = match warnings {
             Some(w) => Some(w + 1),
@@ -205,7 +205,7 @@ pub fn check_tickoff_list_against_members(
                             "    Tickoff size for big {} does not match: {} {}",
                             member.surname, member.big, tick.big
                         )
-                        .red()
+                        .bright_red()
                     );
                     // warnings += 1;
                 }
@@ -220,7 +220,7 @@ pub fn check_tickoff_list_against_members(
                             "    Tickoff size for small {} does not match: {} {}",
                             member.surname, member.big, tick.small
                         )
-                        .red()
+                        .bright_red()
                     );
                     // warnings += 1;
                 }
@@ -230,7 +230,7 @@ pub fn check_tickoff_list_against_members(
         println!(
             "{}",
             format!("    Cannot find item \"{}\" in member list", tick.name)
-                .red()
+                .bright_red()
         );
         warnings = match warnings {
             Some(w) => Some(w + 1),
@@ -345,7 +345,7 @@ pub fn tick_off_list(
                 "    Amount for big in tickoff list does not match {} vs. {}",
                 sum_big, all_big,
             )
-            .red()
+            .bright_red()
         );
     }
     if sum_small != all_small {
@@ -355,7 +355,7 @@ pub fn tick_off_list(
                 "    Amount for small in tickoff list does not match {} vs. {}",
                 sum_small, all_small,
             )
-            .red()
+            .bright_red()
         );
     }
     Ok(tick_off_list)

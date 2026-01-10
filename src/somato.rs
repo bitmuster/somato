@@ -170,7 +170,7 @@ pub fn somato_runner(config: &Config) -> Result<()> {
                 "  {}",
                 format!("Difference in member/portion amount {}", diff)
                     .to_string()
-                    .red()
+                    .bright_red()
             );
         }
         // member::print_members(&mb);

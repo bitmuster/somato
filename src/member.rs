@@ -193,7 +193,7 @@ pub fn check_member_list(members: &[Member]) {
                     "  Duplicated surname: {} {} {}",
                     member.surname, member.contract_no, member.member_no
                 )
-                .red()
+                .bright_red()
             );
         }
     }
@@ -210,7 +210,7 @@ pub fn check_member_list(members: &[Member]) {
                     member.contract_no,
                     member.member_no
                 )
-                .red()
+                .bright_red()
             );
         }
     }
@@ -224,7 +224,7 @@ pub fn check_member_list(members: &[Member]) {
                     "  Duplicated contract number: {} {} {}",
                     member.surname, member.contract_no, member.member_no
                 )
-                .red()
+                .bright_red()
             );
         }
     }
@@ -249,7 +249,7 @@ pub fn filter_jokers(
             {
                 println!(
                     "  Joker set: {} {} from {:?}",
-                    j.surname.to_string().blue(),
+                    j.surname.to_string().bright_blue(),
                     j.forename,
                     m.location
                 );
