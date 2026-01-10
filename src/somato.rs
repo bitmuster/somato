@@ -42,6 +42,7 @@ pub fn read_config(file: &str) -> Result<Config> {
 
 /// Return the location of the configuration file.
 /// Separated into function with simpler interface.
+/// Was needed to mock it.
 pub fn get_config_file() -> Result<String> {
     let arg = env::args().collect::<Vec<String>>();
     let inputfile = if arg.len() == 1 {
