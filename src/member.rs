@@ -181,7 +181,8 @@ pub fn read_members(members_file: &str) -> Result<Vec<Member>> {
     Ok(members)
 }
 
-pub fn check_member_list(members: &[Member]) {
+pub fn check_member_list(members: &[Member]) -> u32 {
+    let mut warnings = 0;
     println!("Checking member list");
     let mut surname_set = collections::HashSet::new();
     for member in members.iter() {
@@ -195,6 +196,7 @@ pub fn check_member_list(members: &[Member]) {
                 )
                 .bright_red()
             );
+            warnings += 1;
         }
     }
     let mut member_no_set = collections::HashSet::new();
@@ -212,6 +214,7 @@ pub fn check_member_list(members: &[Member]) {
                 )
                 .bright_red()
             );
+            warnings += 1;
         }
     }
     let mut contract_no_set = collections::HashSet::new();
@@ -226,8 +229,10 @@ pub fn check_member_list(members: &[Member]) {
                 )
                 .bright_red()
             );
+            warnings += 1;
         }
     }
+    warnings
 }
 
 pub fn filter_active_members(members: MemberList) -> MemberList {
@@ -307,6 +312,7 @@ pub fn print_members(members: &MemberList) {
 mod member_tests {
 
     use super::*;
+    use crate::test_common::test_common::*;
     use calamine::Data;
 
     #[test]
@@ -440,5 +446,15 @@ mod member_tests {
         assert_eq!(m.surname, "Smith");
         assert_eq!(m.forename, "John");
         assert_eq!(m.location, Location::Perouse);
+    }
+    #[test]
+    fn test_check_member_list() {
+        let warnings = check_member_list(&gen_members());
+        assert_eq!(warnings, 0);
+    }
+    #[test]
+    fn test_check_member_list_fail() {
+        let warnings = check_member_list(&gen_members_fail());
+        assert_eq!(warnings, 6);
     }
 }

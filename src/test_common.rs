@@ -102,6 +102,40 @@ pub mod test_common {
         [a, b, c]
     }
 
+    pub fn gen_members_fail() -> [Member; 5] {
+        let a = Member::new_from_values(
+            "EV-1",
+            1,
+            "Testerin",
+            "Alice",
+            2,
+            0,
+            Location::Perouse,
+            true,
+        );
+        let b = Member::new_from_values(
+            "EV-2",
+            2,
+            "Tester",
+            "Bob",
+            0,
+            2,
+            Location::Perouse,
+            true,
+        );
+        let c = Member::new_from_values(
+            "EV-3",
+            3,
+            "Testeress",
+            "Cloe",
+            3,
+            3,
+            Location::Perouse,
+            true,
+        );
+        [a.clone(), a.clone(), b, c, a]
+    }
+
     pub fn gen_joker_a() -> Joker {
         let j = Joker {
             date: NaiveDate::from_ymd_opt(1, 1, 1).unwrap(),

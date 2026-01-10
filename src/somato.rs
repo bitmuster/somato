@@ -145,7 +145,12 @@ pub fn somato_runner(config: &Config) -> Result<()> {
     println!("  Parsed {} members", members.len());
     println!("  Parsed {} jokers", jokers.len());
 
-    member::check_member_list(&members);
+    let warnings_check = member::check_member_list(&members);
+    println!(
+        "{}",
+        format!("Detected {} warnings in member list", warnings_check)
+            .bright_red()
+    );
     joker::check_joker_list(&members, &jokers)?;
 
     let active_members = member::filter_active_members(members.clone());
