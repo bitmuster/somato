@@ -40,6 +40,14 @@ fn basic_read_members() -> Result<(), anyhow::Error> {
 }
 
 #[test]
+fn basic_read_members_warnings() {
+    let config = get_config_synth();
+    let members = member::read_members(&config.members).unwrap();
+    let warnings = member::check_member_list(&members);
+    assert_eq!(warnings, 17);
+}
+
+#[test]
 fn basic_read_jokers() -> Result<(), anyhow::Error> {
     let jokers_count = 15;
     let config = get_config_synth();
