@@ -241,9 +241,9 @@ pub fn filter_jokers_by_date(
     date: &chrono::NaiveDate,
 ) -> JokerList {
     let result: JokerList = jokers
-        .to_owned()
-        .into_iter()
-        .filter(|j| j.date == *date)
+        .iter()
+        .filter(|&j| j.date == *date)
+        .cloned()
         .collect();
     println!("  Filtered {} jokers at {}", result.len(), date);
     result

@@ -84,7 +84,7 @@ pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
         .next()
         .ok_or(anyhow!("Cannot parse day"))?
         .parse::<u32>()?;
-    if !date_split.next().is_none() {
+    if date_split.next().is_some() {
         return Err(anyhow!("Found extra tokens in date"));
     }
 
