@@ -1,5 +1,7 @@
 
 
+![CI](https://github.com/github/docs/actions/workflows/ci.yml/badge.svg)
+
 Somato: The Solawi Management Tool
 ==================================
 
