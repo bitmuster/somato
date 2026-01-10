@@ -18,6 +18,12 @@ Therefore, this project places high expectations into quality assurance and
 software testing.
 
 
+To-Do
+=====
+
+* Currently not possible to detect: Two persons with same initals at the same
+    location. We might see an error in the log, but no clear indication.
+
 Testing
 =======
 
