@@ -24,8 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: cargo-bins/cargo-binstall@main
-      -  run: cargo binstall cargo-tarpaulin
-      -  run: echo Would crash: cargo tarpaulin
+      - run: cargo binstall cargo-tarpaulin
+      - run: echo Would crash cargo tarpaulin
 
   build_and_test:
     name: Somato All Toolchains
