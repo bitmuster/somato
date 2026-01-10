@@ -8,6 +8,7 @@ use colored::Colorize;
 use lazy_regex;
 use std::collections::HashSet;
 
+/// Describes a single tick off item
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TickOffItem {
     // pub date: NaiveDate,
@@ -62,7 +63,10 @@ pub fn check_name_with_initial(name: &str) -> bool {
     let re = lazy_regex::regex!(r"^[A-ZÄÖÜa-zäöü\- ]*, [[:alpha:]].$");
     let rematch = re.is_match(name);
     if !rematch {
-        println!("{}", format!("    Malformed name \"{}\"", name).bright_red());
+        println!(
+            "{}",
+            format!("    Malformed name \"{}\"", name).bright_red()
+        );
     };
     rematch
 }
@@ -186,6 +190,7 @@ pub fn check_tickoff_list_against_members(
                     None => Some(1),
                 };
                 // Name is malformed - skip furhter analysis
+                // No additonal warning check_name_with_initial already complains
                 continue;
             }
             if check_name_equality(
@@ -202,7 +207,7 @@ pub fn check_tickoff_list_against_members(
                     println!(
                         "{}",
                         format!(
-                            "    Tickoff size for big {} does not match: {} {}",
+                            "    Tickoff size for big portion {} does not match member list: {} {}",
                             member.surname, member.big, tick.big
                         )
                         .bright_red()
@@ -217,8 +222,8 @@ pub fn check_tickoff_list_against_members(
                     println!(
                         "{}",
                         format!(
-                            "    Tickoff size for small {} does not match: {} {}",
-                            member.surname, member.big, tick.small
+                            "    Tickoff size for small portion {} does not match member list: {} {}",
+                            member.surname, member.small, tick.small
                         )
                         .bright_red()
                     );
@@ -256,7 +261,7 @@ pub fn tick_off_list(
     })?;
     let mut tick_off_list = vec![];
 
-    // Historic reasos
+    // Historic reasos, the table for Perouse is shifted by one cell
     let offset = match location {
         Location::Perouse => 0,
         _ => 1,
@@ -328,7 +333,7 @@ pub fn tick_off_list(
     }
     let all_big = get_amount_big(&tick_off_list);
     let all_small = get_amount_small(&tick_off_list);
-    println!("  Parsed {sum_big} big amount");
+    println!("  Parsed {sum_big} big portions");
     println!("  Parsed {sum_small} small amount");
     // assert_eq!(
     //     sum_big, all_big,
