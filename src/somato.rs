@@ -24,6 +24,7 @@ use std::env;
 use std::fs;
 use strum::IntoEnumIterator;
 
+/// Configuration to parse from JSON
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct Config {
     pub members: String,
@@ -67,7 +68,7 @@ pub fn somato_main() -> Result<()> {
     Ok(())
 }
 
-// Parse date given in config file.
+/// Parse date given in config file.
 pub fn parse_date(date: &str) -> Result<naive::NaiveDate> {
     let mut date_split = date.split("-");
     let year = date_split
@@ -151,6 +152,7 @@ pub fn somato_runner(config: &Config) -> Result<()> {
     let date = parse_date(&config.date)?;
     analyze_jokers(&active_members, &jokers, &date);
 
+    // Iterate through locations
     for location in Location::iter() {
         println!("{}", "*".repeat(80));
         println!("* Analysis for: {location:?}");
@@ -168,15 +170,20 @@ pub fn somato_runner(config: &Config) -> Result<()> {
         if diff != 0 {
             println!(
                 "  {}",
-                format!("Difference in member/portion amount {}", diff)
-                    .to_string()
-                    .bright_red()
+                format!(
+                    "Difference in member/portion amount ({}). \
+                    Proably one person has big and small amounts.",
+                    diff
+                )
+                .to_string()
+                .bright_red()
             );
         }
         // member::print_members(&mb);
         // member::print_members(&ms);
 
         let tick_off = tickoff::tick_off_list(&config.tickoff, &location)?;
+        let tick_off = tickoff::deduplicate(&tick_off);
         if let Some(warn) =
             tickoff::check_for_members_in_tickoff_list(&loc, &tick_off).unwrap()
         {

@@ -207,8 +207,10 @@ pub fn check_tickoff_list_against_members(
                     println!(
                         "{}",
                         format!(
+                            // "    Tickoff size for big portion {} {} does not match member list: {} {}",
+                            // member.surname, member.forename, member.big, tick.big
                             "    Tickoff size for big portion {} does not match member list: {} {}",
-                            member.surname, member.big, tick.big
+                            tick.name, member.big, tick.big
                         )
                         .bright_red()
                     );
@@ -222,8 +224,10 @@ pub fn check_tickoff_list_against_members(
                     println!(
                         "{}",
                         format!(
+                            // "    Tickoff size for small portion {} {} does not match member list: {} {}",
+                            // member.surname, member.forename, member.small, tick.small
                             "    Tickoff size for small portion {} does not match member list: {} {}",
-                            member.surname, member.small, tick.small
+                            tick.name, member.small, tick.small
                         )
                         .bright_red()
                     );
